@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Salterra Lobby Display</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --purple: #6A3DF0;
+  --blue: #1E73D8;
+  --charcoal: #111417;
+  --lightbg: #F4F4F2;
+}
+
+body {
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  transition: background 2s ease;
+  overflow: hidden;
+}
+
+.container {
+  text-align: center;
+  max-width: 65%;
+  animation: fadeIn 2s ease;
+}
+
+.header {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  letter-spacing: 3px;
+  margin-bottom: 25px;
+}
+
+.quote {
+  font-size: 60px;
+  line-height: 1.25;
+}
+
+.accent {
+  height: 4px;
+  width: 120px;
+  margin: 35px auto 0;
+  background: var(--purple);
+  transition: background 1s ease;
+}
+
+.arrow {
+  position: absolute;
+  bottom: 40px;
+  right: 60px;
+  font-size: 80px;
+  opacity: 0.05;
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="header" id="header"></div>
+  <div class="quote" id="quote"></div>
+  <div class="accent" id="accent"></div>
+</div>
+
+<div class="arrow">➤</div>
+
+<script>
+const content = [
+  {type:"quote", text:"Precision builds confidence."},
+  {type:"quote", text:"Clarity creates calm."},
+  {type:"tax", text:"March 15: S-Corp & Partnership filing deadline."},
+  {type:"appreciation", text:"We’re grateful for the trust you place in us."},
+  {type:"strategy", text:"Extension season is strategy season."}
+];
+
+let index = 0;
+
+function setTheme() {
+  const hour = new Date().getHours();
+  if(hour >= 7 && hour <= 18){
+    document.body.style.background = "var(--lightbg)";
+    document.body.style.color = "#1A1F24";
+  } else {
+    document.body.style.background = "var(--charcoal)";
+    document.body.style.color = "#FFFFFF";
+  }
+}
+
+function rotate() {
+  setTheme();
+  const item = content[index];
+  const header = document.getElementById("header");
+  const quote = document.getElementById("quote");
+  const accent = document.getElementById("accent");
+
+  header.textContent = "";
+  accent.style.background = "var(--purple)";
+
+  if(item.type === "tax"){
+    header.textContent = "TAX REMINDER";
+    header.style.color = "var(--purple)";
+  }
+  if(item.type === "appreciation"){
+    header.textContent = "";
+    accent.style.background = "var(--blue)";
+  }
+  if(item.type === "strategy"){
+    header.textContent = "STRATEGIC NOTE";
+    header.style.color = "var(--blue)";
+  }
+
+  quote.textContent = item.text;
+
+  index = (index + 1) % content.length;
+}
+
+rotate();
+setInterval(rotate, 75000);
+</script>
+
+</body>
+</html>
