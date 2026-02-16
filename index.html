@@ -100,6 +100,23 @@ body {
 .logo-hidden {
   opacity: 0;
 }
+.brand-arrow {
+  position: absolute;
+  bottom: 60px;
+  right: 80px;
+  width: 220px;
+  opacity: 0.08;
+  transition: opacity 2s ease, transform 8s ease-in-out;
+}
+
+.brand-arrow svg {
+  width: 100%;
+  height: auto;
+}
+
+.brand-arrow:hover {
+  opacity: 0.15;
+}
   
 </style>
 </head>
@@ -116,7 +133,25 @@ body {
   <img id="rotating-logo" src="logo-primary-horizontal.png" />
 </div>
 
-<div class="arrow">➤</div>
+<div class="brand-arrow">
+<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6A3DF0"/>
+      <stop offset="100%" stop-color="#8C52FF"/>
+    </linearGradient>
+  </defs>
+  <path d="M20 20 
+           Q10 30 20 40 
+           L110 80 
+           Q130 90 150 75 
+           Q170 60 150 45 
+           L60 5 
+           Q40 -5 20 20 Z"
+        fill="url(#arrowGradient)" />
+</svg>
+</div>
+
 
 <script>
 const SHEET_ID = "1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk";
