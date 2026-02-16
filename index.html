@@ -66,6 +66,41 @@ body {
   from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
+#lobby-logo {
+  position: absolute;
+  width: 220px;
+  transition: all 1.5s ease-in-out;
+}
+
+.logo-top-left {
+  top: 40px;
+  left: 60px;
+}
+
+.logo-top-right {
+  top: 40px;
+  right: 60px;
+}
+
+.logo-bottom-left {
+  bottom: 60px;
+  left: 60px;
+}
+
+.logo-bottom-right {
+  bottom: 60px;
+  right: 60px;
+}
+
+#lobby-logo img {
+  width: 100%;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.logo-hidden {
+  opacity: 0;
+}
+  
 </style>
 </head>
 
@@ -75,6 +110,10 @@ body {
   <div class="header" id="header"></div>
   <div class="quote" id="quote"></div>
   <div class="accent" id="accent"></div>
+</div>
+  
+<div id="lobby-logo">
+  <img id="rotating-logo" src="logo-primary-horizontal.png" />
 </div>
 
 <div class="arrow">➤</div>
@@ -169,6 +208,48 @@ async function init() {
 }
 
 init();
+// ===== Logo Rotation =====
+
+const logos = [
+  "logo-primary-horizontal.png",
+  "logo-primary.png",
+  "logo-secondary-horizontal.png",
+  "logo-secondary.png"
+];
+
+const positions = [
+  "logo-top-left",
+  "logo-top-right",
+  "logo-bottom-right",
+  "logo-bottom-left"
+];
+
+let currentLogoIndex = 0;
+let currentPositionIndex = 0;
+
+function rotateLogo() {
+  const logoImg = document.getElementById("rotating-logo");
+  const logoContainer = document.getElementById("lobby-logo");
+
+  logoImg.classList.add("logo-hidden");
+
+  setTimeout(() => {
+    currentLogoIndex = (currentLogoIndex + 1) % logos.length;
+    logoImg.src = logos[currentLogoIndex];
+
+    logoContainer.classList.remove(positions[currentPositionIndex]);
+    currentPositionIndex = (currentPositionIndex + 1) % positions.length;
+    logoContainer.classList.add(positions[currentPositionIndex]);
+
+    logoImg.classList.remove("logo-hidden");
+  }, 1500);
+}
+
+// Set initial position
+document.getElementById("lobby-logo").classList.add("logo-top-right");
+
+setInterval(rotateLogo, 25000);
+  
 </script>
 
 
