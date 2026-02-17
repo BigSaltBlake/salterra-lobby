@@ -9,10 +9,10 @@
 
 <style>
 :root {
-  --purple: #6A3DF0;
-  --blue: #1E73D8;
-  --charcoal: #111417;
-  --lightbg: #F4F4F2;
+  --purple: #7C3AED;
+  --blue: #2B5FDB;
+  --charcoal: #23272A;
+  --lightbg: #A49AB4;
 }
 
 body {
@@ -22,9 +22,9 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  transition: background 2s ease;
   overflow: hidden;
   cursor: none;
+  transition: background 1.5s ease;
 }
 
 .container {
@@ -62,11 +62,8 @@ body {
   position: absolute;
   transition: all 1s ease-in-out;
 }
-
 #lobby-logo img {
   position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: auto;
   opacity: 0;
@@ -88,9 +85,8 @@ body {
   opacity: 0.08;
   z-index: 0;
   pointer-events: none;
-  transition: opacity 2s ease, transform 1s ease;
+  transition: opacity 1.5s ease, transform 1s ease;
 }
-
 .background-arrow stop { transition: stop-color 1.5s ease; }
 
 .arrow-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
@@ -100,6 +96,7 @@ body {
 .background-arrow svg { width: 100%; height: auto; }
 
 @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
+
 </style>
 </head>
 <body>
@@ -128,16 +125,16 @@ body {
   <div class="accent" id="accent"></div>
 </div>
 
-<!-- Logos as <img> -->
+<!-- Logos -->
 <div id="lobby-logo" class="logo-top-right logo-horizontal">
-  <img id="logo-1" src="logos/logo-primary-horizontal.svg" />
-  <img id="logo-2" src="logos/logo-primary.svg" />
-  <img id="logo-3" src="logos/logo-secondary-horizontal.svg" />
-  <img id="logo-4" src="logos/logo-secondary.svg" />
+  <img id="logo-primary-horizontal" src="https://raw.githubusercontent.com/<your-username>/salterra-lobby/main/logo-primary-horizontal.svg" />
+  <img id="logo-primary" src="https://raw.githubusercontent.com/<your-username>/salterra-lobby/main/logo-primary.svg" />
+  <img id="logo-secondary-horizontal" src="https://raw.githubusercontent.com/<your-username>/salterra-lobby/main/logo-secondary-horizontal.svg" />
+  <img id="logo-secondary" src="https://raw.githubusercontent.com/<your-username>/salterra-lobby/main/logo-secondary.svg" />
 </div>
 
 <script>
-// ===== Quotes from Sheet =====
+// ================= Quotes =================
 const SHEET_URL = "https://opensheet.elk.sh/1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk/Content";
 let content=[], index=0;
 
@@ -145,11 +142,8 @@ async function fetchSheet(){
   try {
     const res = await fetch(SHEET_URL);
     const data = await res.json();
-    content = data.filter(r=>r.Active && r.Active.toLowerCase()==="true").map(r=>({
-      type: r.Type?.toLowerCase() || "quote",
-      text: r.Text,
-      weight: parseInt(r.Weight)||1
-    }));
+    content = data.filter(r=>r.Active && r.Active.toLowerCase()==="true")
+                  .map(r=>({type:r.Type?.toLowerCase()||"quote", text:r.Text, weight:parseInt(r.Weight)||1}));
     weightedShuffle();
   } catch(e){console.error(e);}
 }
@@ -161,8 +155,8 @@ function weightedShuffle(){
 }
 
 function setQuoteText(text){
-  const quote = document.getElementById("quote");
-  quote.textContent = text;
+  const quote=document.getElementById("quote");
+  quote.textContent=text;
   let fs=60; quote.style.fontSize=fs+"px";
   while(quote.scrollWidth>quote.parentElement.offsetWidth && fs>24){ fs-=2; quote.style.fontSize=fs+"px"; }
 }
@@ -183,63 +177,67 @@ function rotateColors(){
   }
 }
 
-function rotate(){
+function rotateQuote(){
   if(!content.length) return;
-  const item = content[index];
+  const item=content[index];
   setQuoteText(item.text);
-  const header=document.getElementById("header");
-  header.textContent="";
-  header.style.color="var(--purple)";
-
-  const arrow = document.querySelector(".background-arrow");
-  if(item.weight>=4) arrow.style.opacity="0.22";
-  else if(item.weight>=2) arrow.style.opacity="0.18";
-  else arrow.style.opacity="0.15";
-
-  rotateColors();
   index=(index+1)%content.length;
+  rotateColors();
 }
 
-async function init(){ await fetchSheet(); rotate(); setInterval(rotate,32000); }
-init();
+// ================= Background & theme =================
+function setTheme(){
+  const hour=new Date().getHours();
+  const isDay = hour>=7 && hour<=18;
+  document.body.style.background = isDay ? "var(--lightbg)" : "var(--charcoal)";
+  updateLogoForTheme(isDay);
+  return isDay;
+}
 
-// ===== Logo rotation =====
-const logoImgs = [
-  document.getElementById("logo-1"),
-  document.getElementById("logo-2"),
-  document.getElementById("logo-3"),
-  document.getElementById("logo-4")
-];
+// ================= Logos =================
+const logos = {
+  primary: { horizontal: document.getElementById("logo-primary-horizontal"), vertical: document.getElementById("logo-primary") },
+  secondary: { horizontal: document.getElementById("logo-secondary-horizontal"), vertical: document.getElementById("logo-secondary") }
+};
 
-const positions = ["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
-let currentLogoIndex = 0, currentPositionIndex = 0;
+let currentLogoType="primary", currentLogoOrientation="horizontal", currentPositionIndex=0;
 const logoContainer=document.getElementById("lobby-logo");
+const positions=["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
 
-function updateLogo(){
-  logoImgs.forEach((img,i)=>img.style.opacity=(i===currentLogoIndex)?1:0);
+function updateLogoForTheme(isDay){
+  currentLogoType=isDay?"primary":"secondary";
+  currentLogoOrientation="horizontal"; // adjust if you want vertical detection
+  Object.values(logos).forEach(obj=>Object.values(obj).forEach(img=>img.style.opacity=0));
+  logos[currentLogoType][currentLogoOrientation].style.opacity=1;
   logoContainer.classList.remove("logo-horizontal","logo-vertical");
-  const img = logoImgs[currentLogoIndex];
-  const aspect = img.naturalWidth/img.naturalHeight;
-  if(aspect>=1) logoContainer.classList.add("logo-horizontal");
-  else logoContainer.classList.add("logo-vertical");
+  logoContainer.classList.add("logo-horizontal");
 }
 
+// Rotate logo positions
 function rotateLogo(){
-  currentLogoIndex=(currentLogoIndex+1)%logoImgs.length;
   logoContainer.classList.remove(positions[currentPositionIndex]);
   currentPositionIndex=(currentPositionIndex+1)%positions.length;
   logoContainer.classList.add(positions[currentPositionIndex]);
-  updateLogo();
 }
 
-// Initial display
-updateLogo();
-setInterval(rotateLogo,25000);
+// ================= Background arrow rotation =================
+let arrowRotation=0;
+setInterval(()=>{
+  arrowRotation+=10;
+  const arrow=document.querySelector(".background-arrow");
+  arrow.style.transform=`translate(-50%,-50%) rotate(${arrowRotation}deg)`;
+},20000);
 
-// Optional: rotate accent + arrow colors every 16s
-setInterval(rotateColors,16000);
-
+// ================= Initialize =================
+async function init(){
+  await fetchSheet();
+  rotateQuote();
+  setTheme();
+  setInterval(rotateQuote,32000);
+  setInterval(()=>setTheme(),60000); // refresh theme every minute
+  setInterval(rotateLogo,25000);
+}
+init();
 </script>
-
 </body>
 </html>
