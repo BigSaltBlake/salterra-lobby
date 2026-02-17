@@ -138,6 +138,27 @@ body {
   position: relative;
   z-index: 2;
 }
+.background-arrow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1000px;
+  transform: translate(-50%, -50%);
+  opacity: 0.07;
+  z-index: 0;
+  pointer-events: none;
+  transition: transform 20s linear;
+}
+
+.background-arrow svg {
+  width: 100%;
+  height: auto;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+}
   
 </style>
 </head>
@@ -290,36 +311,32 @@ setInterval(rotateLogo, 25000);
 let arrowRotation = 0;
 
 setInterval(() => {
-  arrowRotation += 15;
+  arrowRotation += 10;
   const arrow = document.querySelector(".background-arrow");
   arrow.style.transform =
-    `translate(-50%, -50%) rotate(${arrowRotation}deg) scale(${1 + Math.random() * 0.1})`;
+    `translate(-50%, -50%) rotate(${arrowRotation}deg) scale(${1 + Math.random() * 0.08})`;
 }, 20000);
   
 </script>
 
 
 </body>
-  <div class="background-arrow">
-<svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+<div class="background-arrow">
+<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#6A3DF0"/>
       <stop offset="100%" stop-color="#8C52FF"/>
     </linearGradient>
   </defs>
-  <path d="
-    M 60 180
-    Q 40 160 60 140
-    L 300 60
-    Q 350 40 400 90
-    Q 450 140 400 190
-    L 160 270
-    Q 110 290 60 240
-    Z"
-    fill="url(#arrowGradient)"
-  />
+  <path d="M200 120 L400 200 L200 280"
+        stroke="url(#arrowGradient)"
+        stroke-width="60"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        fill="none"/>
 </svg>
 </div>
+
 
 </html>
