@@ -73,17 +73,21 @@ body {
 
 /* Horizontal logos */
 .logo-horizontal {
-  max-width: 25vw; /* max 25% of viewport width */
+  max-width: 180px;  /* smaller and responsive */
   width: auto;
 }
-
-
 
 /* Vertical logos */
 .logo-vertical {
-  max-width: 15vw;
+  max-width: 140px;
   width: auto;
 }
+
+/* Dark mode filter (optional if using PNG variants) */
+#lobby-logo.dark img {
+  filter: brightness(0) invert(1);
+}
+
 
 .logo-top-left {
   top: 40px;
@@ -252,14 +256,20 @@ function weightedShuffle() {
 
 function setTheme() {
   const hour = new Date().getHours();
-  if(hour >= 7 && hour <= 18){
+  const isDay = hour >= 7 && hour <= 18;
+
+  if (isDay) {
     document.body.style.background = "var(--lightbg)";
     document.body.style.color = "#1A1F24";
   } else {
     document.body.style.background = "var(--charcoal)";
     document.body.style.color = "#FFFFFF";
   }
+
+  // Update the logo immediately when theme changes
+  updateLogoAppearance();
 }
+
 
 function rotate() {
   if(content.length === 0) return;
@@ -337,10 +347,10 @@ init();
 // ===== Logo Rotation =====
 
 const logos = [
-  "logo-primary-horizontal.png",
-  "logo-primary.png",
-  "logo-secondary-horizontal.png",
-  "logo-secondary.png"
+  "logo-primary-horizontal",      // base name without extension
+  "logo-primary",
+  "logo-secondary-horizontal",
+  "logo-secondary"
 ];
 
 const positions = [
@@ -353,34 +363,62 @@ const positions = [
 let currentLogoIndex = 0;
 let currentPositionIndex = 0;
 
-function rotateLogo() {
-  const logoImg = document.getElementById("rotating-logo");
-  const logoContainer = document.getElementById("lobby-logo");
+// Set initial logo
+const logoContainer = document.getElementById("lobby-logo");
+const logoImg = document.getElementById("rotating-logo");
 
+logoContainer.classList.add("logo-top-right");
+updateLogoAppearance(); // initial setup
+
+function updateLogoAppearance() {
+  let baseName = logos[currentLogoIndex];
+  
+  // Determine theme suffix
+  const hour = new Date().getHours();
+  const isDay = hour >= 7 && hour <= 18;
+  const themeSuffix = isDay ? "-dark.png" : "-light.png";  // light logo for dark bg, dark logo for light bg
+
+  // Update logo source
+  logoImg.src = baseName + themeSuffix;
+
+  // Remove previous sizing classes
+  logoContainer.classList.remove("logo-horizontal", "logo-vertical");
+  
+  // Apply size class based on logo type
+  if (baseName.includes("horizontal")) {
+    logoContainer.classList.add("logo-horizontal");
+  } else {
+    logoContainer.classList.add("logo-vertical");
+  }
+
+  // Apply dark mode class if using filter approach
+  if (!isDay) {
+    logoContainer.classList.add("dark");
+  } else {
+    logoContainer.classList.remove("dark");
+  }
+}
+
+function rotateLogo() {
   logoImg.classList.add("logo-hidden");
 
   setTimeout(() => {
+    // Move to next logo
     currentLogoIndex = (currentLogoIndex + 1) % logos.length;
-    const newLogo = logos[currentLogoIndex];
-logoImg.src = newLogo;
-
-// Reset logo sizing classes
-logoContainer.classList.remove("logo-horizontal", "logo-vertical");
-
-if (newLogo.includes("horizontal")) {
-  logoContainer.classList.add("logo-horizontal");
-} else {
-  logoContainer.classList.add("logo-vertical");
-}
-
-
+    // Move to next position
     logoContainer.classList.remove(positions[currentPositionIndex]);
     currentPositionIndex = (currentPositionIndex + 1) % positions.length;
     logoContainer.classList.add(positions[currentPositionIndex]);
 
+    updateLogoAppearance(); // update logo for current theme
+
     logoImg.classList.remove("logo-hidden");
   }, 1500);
 }
+
+// Rotate every 25s
+setInterval(rotateLogo, 25000);
+
 
 // Set initial position
 document.getElementById("lobby-logo").classList.add("logo-top-right");
