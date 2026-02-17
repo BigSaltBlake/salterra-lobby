@@ -57,21 +57,22 @@ body {
   transition: background 1.5s ease;
 }
 
-/* Logo container */
+/* Logo */
 #lobby-logo {
   position: absolute;
   z-index: 3;
   transition: all 1s ease-in-out;
 }
 
-/* Inline SVG logos */
-.logo-svg {
-  position: absolute;
+#lobby-logo img {
   max-width: 180px;
+  width: auto;
   height: auto;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 1s ease-in-out;
 }
+
+.logo-hidden { opacity: 0; }
 
 /* Logo positions */
 .logo-top-left { top: 40px; left: 60px; }
@@ -125,55 +126,46 @@ body {
   <div class="accent" id="accent"></div>
 </div>
 
-<!-- Inline SVG Logos -->
+<!-- Logo container -->
 <div id="lobby-logo" class="logo-top-right">
-  <!-- Replace content below with your actual SVG content -->
-  <svg id="logo-primary-horizontal.svg" class="logo-svg" viewBox="0 0 300 100">
-    <!-- logo-primary-horizontal.svg content here -->
-  </svg>
-  <svg id="logo-primary.svg" class="logo-svg" viewBox="0 0 100 300">
-    <!-- logo-primary.svg content here -->
-  </svg>
-  <svg id="logo-secondary-horizontal.svg" class="logo-svg" viewBox="0 0 300 100">
-    <!-- logo-secondary-horizontal.svg content here -->
-  </svg>
-  <svg id="logo-secondary.svg" class="logo-svg" viewBox="0 0 100 300">
-    <!-- logo-secondary.svg content here -->
-  </svg>
+  <img id="rotating-logo" src="logo-primary-horizontal.png" />
 </div>
 
 <script>
-// ================= Quotes =================
+// ===== Quotes =====
 const SHEET_URL = "https://opensheet.elk.sh/1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk/Content";
-let content=[], index=0;
+let content = [], index = 0;
 
-async function fetchSheet(){
+async function fetchSheet() {
   try {
     const res = await fetch(SHEET_URL);
     const data = await res.json();
-    content = data.filter(r=>r.Active && r.Active.toLowerCase()==="true")
-                  .map(r=>({text:r.Text}));
-  } catch(e){ console.error(e); }
+    content = data.filter(r => r.Active && r.Active.toLowerCase() === "true")
+                  .map(r => ({ text: r.Text }));
+  } catch(e) { console.error(e); }
 }
 
 function setQuoteText(text){
-  const quote=document.getElementById("quote");
-  quote.textContent=text;
-  let fs=60; quote.style.fontSize=fs+"px";
-  while(quote.scrollWidth>quote.parentElement.offsetWidth && fs>24){ fs-=2; quote.style.fontSize=fs+"px"; }
+  const quote = document.getElementById("quote");
+  quote.textContent = text;
+  let fs = 60;
+  quote.style.fontSize = fs + "px";
+  while(quote.scrollWidth > quote.parentElement.offsetWidth && fs > 24) {
+    fs -= 2;
+    quote.style.fontSize = fs + "px";
+  }
 }
 
 function rotateColors(){
-  const accent=document.getElementById("accent");
-  const stop1=document.getElementById("arrowStop1");
-  const stop2=document.getElementById("arrowStop2");
-  const isPurple = accent.style.background==="var(--purple)";
-  if(isPurple){
-    accent.style.background="var(--blue)";
+  const accent = document.getElementById("accent");
+  const stop1 = document.getElementById("arrowStop1");
+  const stop2 = document.getElementById("arrowStop2");
+  if(accent.style.background === "var(--purple)") {
+    accent.style.background = "var(--blue)";
     stop1.setAttribute("stop-color","#1E73D8");
     stop2.setAttribute("stop-color","#4AA3FF");
   } else {
-    accent.style.background="var(--purple)";
+    accent.style.background = "var(--purple)";
     stop1.setAttribute("stop-color","#6A3DF0");
     stop2.setAttribute("stop-color","#8C52FF");
   }
@@ -182,67 +174,56 @@ function rotateColors(){
 function rotateQuote(){
   if(!content.length) return;
   setQuoteText(content[index].text);
-  index=(index+1)%content.length;
+  index = (index + 1) % content.length;
   rotateColors();
 }
 
-// ================= Theme =================
-function setTheme(){
-  const hour=new Date().getHours();
-  const isDay = hour>=7 && hour<=18;
-  document.body.style.background = isDay ? "var(--lightbg)" : "var(--charcoal)";
-  updateLogoForTheme(isDay);
-  return isDay;
-}
-
-// ================= Logos =================
+// ===== Logo rotation =====
 const logos = [
-  document.getElementById("logo-primary-horizontal.svg"),
-  document.getElementById("logo-primary.svg"),
-  document.getElementById("logo-secondary-horizontal.svg"),
-  document.getElementById("logo-secondary.svg")
+  "logo-primary-horizontal.png",
+  "logo-primary.png",
+  "logo-secondary-horizontal.png",
+  "logo-secondary.png"
 ];
-
+const positions = ["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
 let currentLogoIndex = 0;
+let currentPositionIndex = 0;
+
+const logoImg = document.getElementById("rotating-logo");
 const logoContainer = document.getElementById("lobby-logo");
-const positions=["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
 
-function updateLogoForTheme(isDay){
-  // Show correct logo type
-  logos.forEach(l=>l.style.opacity=0);
-  if(isDay) logos[0].style.opacity=1;       // primary horizontal for day
-  else logos[2].style.opacity=1;            // secondary horizontal for night
-  logoContainer.classList.remove(...positions);
-  logoContainer.classList.add("logo-top-right");
+function rotateLogo() {
+  logoImg.classList.add("logo-hidden");
+  setTimeout(()=>{
+    currentLogoIndex = (currentLogoIndex + 1) % logos.length;
+    logoImg.src = logos[currentLogoIndex];
+
+    logoContainer.classList.remove(...positions);
+    currentPositionIndex = (currentPositionIndex + 1) % positions.length;
+    logoContainer.classList.add(positions[currentPositionIndex]);
+
+    logoImg.classList.remove("logo-hidden");
+  }, 1500);
 }
 
-function rotateLogo(){
-  logos.forEach(l=>l.style.opacity=0);
-  logos[currentLogoIndex].style.opacity=1;
-  // rotate positions
-  logoContainer.classList.remove(...positions);
-  logoContainer.classList.add(positions[currentLogoIndex % positions.length]);
-  currentLogoIndex=(currentLogoIndex+1)%logos.length;
-}
-
-// ================= Background arrow rotation =================
-let arrowRotation=0;
+// ===== Background arrow rotation =====
+let arrowRotation = 0;
 setInterval(()=>{
-  arrowRotation+=10;
-  const arrow=document.querySelector(".background-arrow");
-  arrow.style.transform=`translate(-50%,-50%) rotate(${arrowRotation}deg)`;
-},20000);
+  arrowRotation += 10;
+  const arrow = document.querySelector(".background-arrow");
+  arrow.style.transform = `translate(-50%,-50%) rotate(${arrowRotation}deg)`;
+}, 20000);
 
-// ================= Initialize =================
+// ===== Initialize =====
 async function init(){
   await fetchSheet();
   rotateQuote();
-  setTheme();
-  setInterval(rotateQuote,32000);
-  setInterval(()=>setTheme(),60000); 
-  setInterval(rotateLogo,25000);
+  setInterval(rotateQuote, 32000);
+  setInterval(rotateLogo, 25000);
 }
+
 init();
 </script>
+
 </body>
 </html>
