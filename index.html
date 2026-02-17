@@ -30,9 +30,10 @@ body {
 .container {
   text-align: center;
   max-width: 65%;
-  animation: fadeIn 2s ease;
   position: relative;
-  z-index: 2;
+  z-index: 4; /* above logos */
+  color: #1A1F24;
+  animation: fadeIn 2s ease;
 }
 
 .header {
@@ -64,10 +65,22 @@ body {
   transition: all 1s ease-in-out;
 }
 
-#lobby-logo img {
-  max-width: 180px;
+/* Logo sizing */
+.logo-horizontal {
+  max-width: 220px;
   width: auto;
   height: auto;
+}
+.logo-vertical {
+  max-width: 140px;
+  width: auto;
+  height: auto;
+}
+
+#lobby-logo img {
+  width: 100%;
+  height: auto;
+  display: block;
   opacity: 1;
   transition: opacity 1s ease-in-out;
 }
@@ -87,7 +100,7 @@ body {
   opacity: 0.08;
   z-index: 0;
   pointer-events: none;
-  transition: opacity 1.5s ease, transform 2s ease;
+  transition: opacity 1.5s ease, transform 1s ease;
 }
 .background-arrow stop { transition: stop-color 1.5s ease; }
 
@@ -120,6 +133,7 @@ body {
   </svg>
 </div>
 
+<!-- Container for quotes -->
 <div class="container">
   <div class="header" id="header"></div>
   <div class="quote" id="quote"></div>
@@ -156,11 +170,13 @@ function setQuoteText(text){
   }
 }
 
+// ===== Accent + Background arrow color sync =====
 function rotateColors(){
   const accent = document.getElementById("accent");
   const stop1 = document.getElementById("arrowStop1");
   const stop2 = document.getElementById("arrowStop2");
-  if(accent.style.background === "var(--purple)") {
+
+  if(accent.style.background === "var(--purple)" || !accent.style.background){
     accent.style.background = "var(--blue)";
     stop1.setAttribute("stop-color","#1E73D8");
     stop2.setAttribute("stop-color","#4AA3FF");
@@ -172,10 +188,13 @@ function rotateColors(){
 }
 
 function rotateQuote(){
-  if(!content.length) return;
-  setQuoteText(content[index].text);
-  index = (index + 1) % content.length;
-  rotateColors();
+  if(!content.length) {
+    setQuoteText("Welcome to Salterra!");
+  } else {
+    setQuoteText(content[index].text);
+    index = (index + 1) % content.length;
+  }
+  rotateColors(); // sync arrow & accent
 }
 
 // ===== Logo rotation =====
@@ -192,18 +211,27 @@ let currentPositionIndex = 0;
 const logoImg = document.getElementById("rotating-logo");
 const logoContainer = document.getElementById("lobby-logo");
 
-function rotateLogo() {
+function updateLogoAppearance(){
+  const base = logos[currentLogoIndex];
+  logoContainer.classList.remove("logo-horizontal","logo-vertical");
+  if(base.includes("horizontal")){
+    logoContainer.classList.add("logo-horizontal");
+  } else {
+    logoContainer.classList.add("logo-vertical");
+  }
+  logoImg.src = base;
+}
+
+function rotateLogo(){
   logoImg.classList.add("logo-hidden");
   setTimeout(()=>{
     currentLogoIndex = (currentLogoIndex + 1) % logos.length;
-    logoImg.src = logos[currentLogoIndex];
-
-    logoContainer.classList.remove(...positions);
     currentPositionIndex = (currentPositionIndex + 1) % positions.length;
+    logoContainer.classList.remove(...positions);
     logoContainer.classList.add(positions[currentPositionIndex]);
-
+    updateLogoAppearance();
     logoImg.classList.remove("logo-hidden");
-  }, 1500);
+  },1500);
 }
 
 // ===== Background arrow rotation =====
@@ -211,19 +239,19 @@ let arrowRotation = 0;
 setInterval(()=>{
   arrowRotation += 10;
   const arrow = document.querySelector(".background-arrow");
-  const transformScale = arrow.style.transform.match(/scale\([0-9.]+\)/);
-  const scale = transformScale ? transformScale[0] : "scale(1)";
-  arrow.style.transform = `translate(-50%,-50%) rotate(${arrowRotation}deg) ${scale}`;
-}, 20000);
+  arrow.style.transform = `translate(-50%,-50%) rotate(${arrowRotation}deg)`;
+},20000);
 
 // ===== Initialize =====
 async function init(){
   await fetchSheet();
+  if(content.length === 0){
+    content = [{text:"Welcome to Salterra!"}];
+  }
   rotateQuote();
   setInterval(rotateQuote, 32000);
   setInterval(rotateLogo, 25000);
 }
-
 init();
 </script>
 
