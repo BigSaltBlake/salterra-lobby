@@ -54,7 +54,7 @@ body {
   width: 120px;
   margin: 35px auto 0;
   background: var(--purple);
-  transition: background 1s ease;
+  transition: background 1.5s ease;
 }
 
 @keyframes fadeIn {
@@ -85,10 +85,10 @@ body {
   opacity: 0.08;
   z-index: 0;
   pointer-events: none;
-  transition: opacity 2s ease, transform 1s ease, stop-color 1s ease;
+  transition: opacity 2s ease, transform 1s ease;
 }
 
-.background-arrow stop { transition: stop-color 1s ease; }
+.background-arrow stop { transition: stop-color 1.5s ease; }
 
 .arrow-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
 .arrow-top-right { top: 30%; left: 70%; transform: translate(-50%, -50%); }
@@ -134,17 +134,18 @@ body {
 
 <!-- Inline SVG logos -->
 <div id="lobby-logo" class="logo-top-right logo-horizontal">
-  <!-- REPLACE the contents of each SVG with your real logos -->
-  <svg id="logo-1" viewBox="0 0 200 60"><rect width="200" height="60" fill="#6A3DF0"/><text x="100" y="38" text-anchor="middle" fill="#fff" font-size="24" font-family="Inter">Logo 1</text></svg>
-  <svg id="logo-2" viewBox="0 0 100 200"><rect width="100" height="200" fill="#6A3DF0"/><text x="50" y="110" text-anchor="middle" fill="#fff" font-size="24" font-family="Inter">Logo 2</text></svg>
-  <svg id="logo-3" viewBox="0 0 200 60"><rect width="200" height="60" fill="#1E73D8"/><text x="100" y="38" text-anchor="middle" fill="#fff" font-size="24" font-family="Inter">Logo 3</text></svg>
-  <svg id="logo-4" viewBox="0 0 100 200"><rect width="100" height="200" fill="#1E73D8"/><text x="50" y="110" text-anchor="middle" fill="#fff" font-size="24" font-family="Inter">Logo 4</text></svg>
+  <!-- Replace these with your actual SVG logos -->
+  <svg id="logo-1" viewBox="0 0 200 60"> ... </svg>
+  <svg id="logo-2" viewBox="0 0 100 200"> ... </svg>
+  <svg id="logo-3" viewBox="0 0 200 60"> ... </svg>
+  <svg id="logo-4" viewBox="0 0 100 200"> ... </svg>
 </div>
 
 <script>
-const SHEET_ID = "1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk";
-const SHEET_NAME = "Content";
-const SHEET_URL = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+// ===== Sheet + Quotes =====
+const SHEET_ID="1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk";
+const SHEET_NAME="Content";
+const SHEET_URL=`https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
 let content=[], index=0;
 
@@ -152,7 +153,7 @@ async function fetchSheet(){
   try{
     const res=await fetch(SHEET_URL);
     const data=await res.json();
-    content = data.filter(r=>r.Active && r.Active.toLowerCase()==="true")
+    content=data.filter(r=>r.Active && r.Active.toLowerCase()==="true")
       .map(r=>({ type:r.Type?.toLowerCase()||"quote", text:r.Text, weight:parseInt(r.Weight)||1 }));
     weightedShuffle();
   }catch(e){console.error(e);}
@@ -171,6 +172,7 @@ function setTheme(){
   document.body.style.color=isDay?"#1A1F24":"#FFFFFF";
 }
 
+// Auto scale quotes
 function setQuoteText(text){
   const quote=document.getElementById("quote");
   quote.textContent=text;
@@ -178,11 +180,13 @@ function setQuoteText(text){
   while(quote.scrollWidth>quote.parentElement.offsetWidth && fs>24){ fs-=2; quote.style.fontSize=fs+"px"; }
 }
 
+// Smooth gradient + accent swap
 function rotateColors(){
   const accent=document.getElementById("accent");
   const stop1=document.getElementById("arrowStop1");
   const stop2=document.getElementById("arrowStop2");
-  if(accent.style.background==="var(--purple)"){
+  const isPurple=accent.style.background==="var(--purple)";
+  if(isPurple){
     accent.style.background="var(--blue)";
     stop1.setAttribute("stop-color","#1E73D8");
     stop2.setAttribute("stop-color","#4AA3FF");
@@ -211,6 +215,7 @@ function rotate(){
   index=(index+1)%content.length;
 }
 
+// Init
 async function init(){ await fetchSheet(); rotate(); setInterval(rotate,32000); }
 init();
 
@@ -228,8 +233,11 @@ const logoContainer=document.getElementById("lobby-logo");
 function updateLogo(){
   logoSVGs.forEach((svg,i)=>svg.style.opacity=(i===currentLogoIndex)?1:0);
   logoContainer.classList.remove("logo-horizontal","logo-vertical");
-  const svgEl=logoSVGs[currentLogoIndex];
-  svgEl.getAttribute("viewBox").includes("200 60")?logoContainer.classList.add("logo-horizontal"):logoContainer.classList.add("logo-vertical");
+  const viewBox = logoSVGs[currentLogoIndex].getAttribute("viewBox").split(" ");
+  const width=parseFloat(viewBox[2]);
+  const height=parseFloat(viewBox[3]);
+  if(width>=height){ logoContainer.classList.add("logo-horizontal"); }
+  else{ logoContainer.classList.add("logo-vertical"); }
 }
 
 function rotateLogo(){
@@ -243,7 +251,9 @@ function rotateLogo(){
 updateLogo();
 setInterval(rotateLogo,25000);
 
+// Optional: continuous gradient swap independently
+setInterval(rotateColors,16000);
+
 </script>
 </body>
 </html>
-
