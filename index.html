@@ -63,17 +63,17 @@ body {
   z-index: 3;
   transition: all 1s ease-in-out;
 }
-#lobby-logo img {
+
+/* Inline SVG logos */
+.logo-svg {
   position: absolute;
-  width: 100%;
+  max-width: 180px;
   height: auto;
   opacity: 0;
   transition: opacity 1s ease-in-out;
 }
 
-.logo-horizontal { max-width: 180px; width: auto; }
-.logo-vertical { max-width: 140px; width: auto; }
-
+/* Logo positions */
 .logo-top-left { top: 40px; left: 60px; }
 .logo-top-right { top: 40px; right: 60px; }
 .logo-bottom-left { bottom: 60px; left: 60px; }
@@ -97,7 +97,6 @@ body {
 .background-arrow svg { width: 100%; height: auto; }
 
 @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
-
 </style>
 </head>
 <body>
@@ -126,12 +125,21 @@ body {
   <div class="accent" id="accent"></div>
 </div>
 
-<!-- Logos (local SVG files in same folder) -->
-<div id="lobby-logo" class="logo-top-right logo-horizontal">
-  <img id="logo-primary-horizontal" src="logo-primary-horizontal.svg" />
-  <img id="logo-primary" src="logo-primary.svg" />
-  <img id="logo-secondary-horizontal" src="logo-secondary-horizontal.svg" />
-  <img id="logo-secondary" src="logo-secondary.svg" />
+<!-- Inline SVG Logos -->
+<div id="lobby-logo" class="logo-top-right">
+  <!-- Replace content below with your actual SVG content -->
+  <svg id="logo-primary-horizontal" class="logo-svg" viewBox="0 0 300 100">
+    <!-- logo-primary-horizontal.svg content here -->
+  </svg>
+  <svg id="logo-primary" class="logo-svg" viewBox="0 0 100 300">
+    <!-- logo-primary.svg content here -->
+  </svg>
+  <svg id="logo-secondary-horizontal" class="logo-svg" viewBox="0 0 300 100">
+    <!-- logo-secondary-horizontal.svg content here -->
+  </svg>
+  <svg id="logo-secondary" class="logo-svg" viewBox="0 0 100 300">
+    <!-- logo-secondary.svg content here -->
+  </svg>
 </div>
 
 <script>
@@ -144,15 +152,8 @@ async function fetchSheet(){
     const res = await fetch(SHEET_URL);
     const data = await res.json();
     content = data.filter(r=>r.Active && r.Active.toLowerCase()==="true")
-                  .map(r=>({type:r.Type?.toLowerCase()||"quote", text:r.Text, weight:parseInt(r.Weight)||1}));
-    weightedShuffle();
-  } catch(e){console.error(e);}
-}
-
-function weightedShuffle(){
-  let weighted=[];
-  content.forEach(item=>{ for(let i=0;i<item.weight;i++) weighted.push(item); });
-  content = weighted.sort(()=>0.5-Math.random());
+                  .map(r=>({text:r.Text}));
+  } catch(e){ console.error(e); }
 }
 
 function setQuoteText(text){
@@ -180,13 +181,12 @@ function rotateColors(){
 
 function rotateQuote(){
   if(!content.length) return;
-  const item=content[index];
-  setQuoteText(item.text);
+  setQuoteText(content[index].text);
   index=(index+1)%content.length;
   rotateColors();
 }
 
-// ================= Background & theme =================
+// ================= Theme =================
 function setTheme(){
   const hour=new Date().getHours();
   const isDay = hour>=7 && hour<=18;
@@ -196,29 +196,33 @@ function setTheme(){
 }
 
 // ================= Logos =================
-const logos = {
-  primary: { horizontal: document.getElementById("logo-primary-horizontal"), vertical: document.getElementById("logo-primary") },
-  secondary: { horizontal: document.getElementById("logo-secondary-horizontal"), vertical: document.getElementById("logo-secondary") }
-};
+const logos = [
+  document.getElementById("logo-primary-horizontal"),
+  document.getElementById("logo-primary"),
+  document.getElementById("logo-secondary-horizontal"),
+  document.getElementById("logo-secondary")
+];
 
-let currentLogoType="primary", currentLogoOrientation="horizontal", currentPositionIndex=0;
-const logoContainer=document.getElementById("lobby-logo");
+let currentLogoIndex = 0;
+const logoContainer = document.getElementById("lobby-logo");
 const positions=["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
 
 function updateLogoForTheme(isDay){
-  currentLogoType=isDay?"primary":"secondary";
-  currentLogoOrientation="horizontal"; 
-  Object.values(logos).forEach(obj=>Object.values(obj).forEach(img=>img.style.opacity=0));
-  logos[currentLogoType][currentLogoOrientation].style.opacity=1;
-  logoContainer.classList.remove("logo-horizontal","logo-vertical");
-  logoContainer.classList.add("logo-horizontal");
+  // Show correct logo type
+  logos.forEach(l=>l.style.opacity=0);
+  if(isDay) logos[0].style.opacity=1;       // primary horizontal for day
+  else logos[2].style.opacity=1;            // secondary horizontal for night
+  logoContainer.classList.remove(...positions);
+  logoContainer.classList.add("logo-top-right");
 }
 
-// Rotate logo positions
 function rotateLogo(){
-  logoContainer.classList.remove(positions[currentPositionIndex]);
-  currentPositionIndex=(currentPositionIndex+1)%positions.length;
-  logoContainer.classList.add(positions[currentPositionIndex]);
+  logos.forEach(l=>l.style.opacity=0);
+  logos[currentLogoIndex].style.opacity=1;
+  // rotate positions
+  logoContainer.classList.remove(...positions);
+  logoContainer.classList.add(positions[currentLogoIndex % positions.length]);
+  currentLogoIndex=(currentLogoIndex+1)%logos.length;
 }
 
 // ================= Background arrow rotation =================
