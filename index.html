@@ -9,10 +9,10 @@
 
 <style>
 :root {
-  --purple: #7C3AED;
-  --blue: #2B5FDB;
-  --charcoal: #23272A;
-  --lightbg: #A49AB4;
+  --purple: #6A3DF0;
+  --blue: #1E73D8;
+  --charcoal: #111417;
+  --lightbg: #F4F4F2;
 }
 
 body {
@@ -60,6 +60,7 @@ body {
 /* Logo container */
 #lobby-logo {
   position: absolute;
+  z-index: 3;
   transition: all 1s ease-in-out;
 }
 #lobby-logo img {
@@ -127,10 +128,10 @@ body {
 
 <!-- Logos -->
 <div id="lobby-logo" class="logo-top-right logo-horizontal">
-  <img id="logo-primary-horizontal" src="https://raw.githubusercontent.com/<BigSaltBlake>/salterra-lobby/main/logo-primary-horizontal.svg" />
-  <img id="logo-primary" src="https://raw.githubusercontent.com/<BigSaltBlake>/salterra-lobby/main/logo-primary.svg" />
-  <img id="logo-secondary-horizontal" src="https://raw.githubusercontent.com/<BigSaltBlake>/salterra-lobby/main/logo-secondary-horizontal.svg" />
-  <img id="logo-secondary" src="https://raw.githubusercontent.com/<BigSaltBlake>/salterra-lobby/main/logo-secondary.svg" />
+  <img id="logo-primary-horizontal" src="https://raw.githubusercontent.com/BigSaltBlake/salterra-lobby/refs/heads/main/logo-primary-horizontal.svg" />
+  <img id="logo-primary" src="https://raw.githubusercontent.com/BigSaltBlake/salterra-lobby/refs/heads/main/logo-primary.svg" />
+  <img id="logo-secondary-horizontal" src="https://raw.githubusercontent.com/BigSaltBlake/salterra-lobby/refs/heads/main/logo-secondary-horizontal.svg" />
+  <img id="logo-secondary" src="https://raw.githubusercontent.com/BigSaltBlake/salterra-lobby/refs/heads/main/logo-secondary.svg" />
 </div>
 
 <script>
@@ -206,7 +207,7 @@ const positions=["logo-top-left","logo-top-right","logo-bottom-right","logo-bott
 
 function updateLogoForTheme(isDay){
   currentLogoType=isDay?"primary":"secondary";
-  currentLogoOrientation="horizontal"; // adjust if you want vertical detection
+  currentLogoOrientation="horizontal"; // you can adjust if needed
   Object.values(logos).forEach(obj=>Object.values(obj).forEach(img=>img.style.opacity=0));
   logos[currentLogoType][currentLogoOrientation].style.opacity=1;
   logoContainer.classList.remove("logo-horizontal","logo-vertical");
