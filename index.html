@@ -75,7 +75,7 @@ body {
 .logo-bottom-left { bottom: 60px; left: 60px; }
 .logo-bottom-right { bottom: 60px; right: 60px; }
 
-#lobby-logo img { width: 100%; transition: opacity 1.5s ease-in-out; }
+#lobby-logo svg { width: 100%; height: auto; transition: opacity 1.5s ease-in-out; }
 .logo-hidden { opacity: 0; }
 
 .background-arrow {
@@ -98,6 +98,8 @@ body {
 </head>
 
 <body>
+
+<!-- Background arrow -->
 <div class="background-arrow arrow-center">
   <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -121,8 +123,31 @@ body {
   <div class="accent" id="accent"></div>
 </div>
   
-<div id="lobby-logo">
-  <img id="rotating-logo" src="logos/logo-primary-horizontal.svg" />
+<!-- Inline SVG logos -->
+<div id="lobby-logo" class="logo-top-right logo-horizontal">
+  <!-- SVG 1: primary horizontal -->
+  <svg id="logo-1" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="60" fill="#6A3DF0"/>
+    <text x="100" y="38" text-anchor="middle" fill="#fff" font-size="24" font-family="Inter">Logo 1</text>
+  </svg>
+
+  <!-- SVG 2: primary vertical -->
+  <svg id="logo-2" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <rect width="100" height="200" fill="#6A3DF0"/>
+    <text x="50" y="110" text-anchor="middle" fill="#fff" font-size="24" font-family="Inter">Logo 2</text>
+  </svg>
+
+  <!-- SVG 3: secondary horizontal -->
+  <svg id="logo-3" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <rect width="200" height="60" fill="#1E73D8"/>
+    <text x="100" y="38" text-anchor="middle" fill="#fff" font-size="24" font-family="Inter">Logo 3</text>
+  </svg>
+
+  <!-- SVG 4: secondary vertical -->
+  <svg id="logo-4" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <rect width="100" height="200" fill="#1E73D8"/>
+    <text x="50" y="110" text-anchor="middle" fill="#fff" font-size="24" font-family="Inter">Logo 4</text>
+  </svg>
 </div>
 
 <script>
@@ -140,27 +165,25 @@ async function fetchSheet() {
     content = data
       .filter(row => row.Active && row.Active.toLowerCase() === "true")
       .map(row => ({
-        type: row.Type?.toLowerCase(),
+        type: row.Type?.toLowerCase() || "quote",
         text: row.Text,
         weight: parseInt(row.Weight) || 1
       }));
     weightedShuffle();
-  } catch (error) {
-    console.error("Sheet load failed:", error);
-  }
+  } catch (error) { console.error("Sheet load failed:", error); }
 }
 
 function weightedShuffle() {
   let weighted = [];
   content.forEach(item => {
-    for (let i = 0; i < item.weight; i++) weighted.push(item);
+    for (let i=0;i<item.weight;i++) weighted.push(item);
   });
   content = weighted.sort(() => 0.5 - Math.random());
 }
 
 function setTheme() {
   const hour = new Date().getHours();
-  const isDay = hour >= 7 && hour <= 18;
+  const isDay = hour >=7 && hour <=18;
   document.body.style.background = isDay ? "var(--lightbg)" : "var(--charcoal)";
   document.body.style.color = isDay ? "#1A1F24" : "#FFFFFF";
 }
@@ -169,113 +192,84 @@ function setQuoteText(text){
   const quote = document.getElementById("quote");
   quote.textContent = text;
   let fontSize = 60;
-  quote.style.fontSize = fontSize + "px";
-  while(quote.scrollWidth > quote.parentElement.offsetWidth && fontSize > 24){
+  quote.style.fontSize = fontSize+"px";
+  while(quote.scrollWidth > quote.parentElement.offsetWidth && fontSize>24){
     fontSize -= 2;
-    quote.style.fontSize = fontSize + "px";
+    quote.style.fontSize = fontSize+"px";
   }
 }
 
-function rotate() {
-  if(content.length === 0) return;
-  setTheme();
+function rotateColors(){
+  const accent = document.getElementById("accent");
+  const stop1 = document.getElementById("arrowStop1");
+  const stop2 = document.getElementById("arrowStop2");
+  if(accent.style.background==="var(--purple)"){
+    accent.style.background="var(--blue)";
+    stop1.setAttribute("stop-color","#1E73D8");
+    stop2.setAttribute("stop-color","#4AA3FF");
+  } else {
+    accent.style.background="var(--purple)";
+    stop1.setAttribute("stop-color","#6A3DF0");
+    stop2.setAttribute("stop-color","#8C52FF");
+  }
+}
 
+function rotate(){
+  if(content.length===0) return;
+  setTheme();
   const item = content[index];
   const header = document.getElementById("header");
-  const accent = document.getElementById("accent");
-  const arrow = document.querySelector(".background-arrow");
-  const arrowStop1 = document.getElementById("arrowStop1");
-  const arrowStop2 = document.getElementById("arrowStop2");
-
   header.textContent = "";
   header.style.color = "var(--purple)";
-  accent.style.background = "var(--purple)";
+  
+  setQuoteText(item.text);
 
-  if(item.weight >= 4) { arrow.style.transform = "translate(-50%, -50%) scale(1.2)"; arrow.style.opacity="0.22"; }
-  else if(item.weight >= 2) { arrow.style.transform = "translate(-50%, -50%) scale(1)"; arrow.style.opacity="0.18"; }
-  else { arrow.style.transform = "translate(-50%, -50%) scale(0.85)"; arrow.style.opacity="0.15"; }
+  const arrow = document.querySelector(".background-arrow");
+  if(item.weight>=4){ arrow.style.transform="translate(-50%,-50%) scale(1.2)"; arrow.style.opacity="0.22";}
+  else if(item.weight>=2){ arrow.style.transform="translate(-50%,-50%) scale(1)"; arrow.style.opacity="0.18";}
+  else{ arrow.style.transform="translate(-50%,-50%) scale(0.85)"; arrow.style.opacity="0.15";}
 
-  switch(item.type) {
-    case "tax":
-      header.textContent="TAX REMINDER";
-      arrowStop1.setAttribute("stop-color","#6A3DF0");
-      arrowStop2.setAttribute("stop-color","#8C52FF");
-      arrow.className="background-arrow arrow-top-right";
-      break;
-    case "appreciation":
-      accent.style.background="var(--blue)";
-      arrowStop1.setAttribute("stop-color","#1E73D8");
-      arrowStop2.setAttribute("stop-color","#4AA3FF");
-      arrow.className="background-arrow arrow-bottom-left";
-      break;
-    case "strategy":
-      header.textContent="STRATEGIC NOTE";
-      header.style.color="var(--blue)";
-      arrowStop1.setAttribute("stop-color","#1E73D8");
-      arrowStop2.setAttribute("stop-color","#4AA3FF");
-      arrow.className="background-arrow arrow-center";
-      break;
-    case "brand":
-      header.textContent="";
-      setQuoteText("Salterra CFO");
-      accent.style.background="var(--purple)";
-      arrowStop1.setAttribute("stop-color","#6A3DF0");
-      arrowStop2.setAttribute("stop-color","#8C52FF");
-      arrow.className="background-arrow arrow-center";
-      break;
-    default:
-      arrowStop1.setAttribute("stop-color","#6A3DF0");
-      arrowStop2.setAttribute("stop-color","#8C52FF");
-  }
+  rotateColors(); // accent line + arrow gradient
 
-  if(item.type !== "brand") setQuoteText(item.text);
   index = (index+1) % content.length;
 }
 
-async function init() {
+async function init(){
   await fetchSheet();
   rotate();
-  setInterval(rotate, 32000);
+  setInterval(rotate,32000);
 }
 
 init();
 
 // ===== Logo Rotation =====
-const logos = [
-  "logos/logo-primary-horizontal.svg",
-  "logos/logo-primary.svg",
-  "logos/logo-secondary-horizontal.svg",
-  "logos/logo-secondary.svg"
+const logoSVGs = [
+  document.getElementById("logo-1"),
+  document.getElementById("logo-2"),
+  document.getElementById("logo-3"),
+  document.getElementById("logo-4")
 ];
-
 const positions = ["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
-
 let currentLogoIndex=0, currentPositionIndex=0;
 const logoContainer=document.getElementById("lobby-logo");
-const logoImg=document.getElementById("rotating-logo");
 
-logoContainer.classList.add("logo-top-right");
-
-function updateLogoAppearance(){
-  let baseName=logos[currentLogoIndex];
-  logoImg.src=baseName;
+function updateLogo(){
+  logoSVGs.forEach((svg,i)=> svg.style.display=(i===currentLogoIndex)?"block":"none");
   logoContainer.classList.remove("logo-horizontal","logo-vertical");
-  if(baseName.includes("horizontal")) logoContainer.classList.add("logo-horizontal");
+  const svgEl=logoSVGs[currentLogoIndex];
+  if(svgEl.getAttribute("viewBox").includes("200 60")) logoContainer.classList.add("logo-horizontal");
   else logoContainer.classList.add("logo-vertical");
 }
 
 function rotateLogo(){
-  logoImg.classList.add("logo-hidden");
-  setTimeout(()=>{
-    currentLogoIndex=(currentLogoIndex+1)%logos.length;
-    logoContainer.classList.remove(positions[currentPositionIndex]);
-    currentPositionIndex=(currentPositionIndex+1)%positions.length;
-    logoContainer.classList.add(positions[currentPositionIndex]);
-    updateLogoAppearance();
-    logoImg.classList.remove("logo-hidden");
-  },1500);
+  currentLogoIndex=(currentLogoIndex+1)%logoSVGs.length;
+  logoContainer.classList.remove(positions[currentPositionIndex]);
+  currentPositionIndex=(currentPositionIndex+1)%positions.length;
+  logoContainer.classList.add(positions[currentPositionIndex]);
+  updateLogo();
 }
 
+updateLogo();
 setInterval(rotateLogo,25000);
 
 // ===== Background Arrow Rotation =====
@@ -283,8 +277,8 @@ let arrowRotation=0;
 setInterval(()=>{
   arrowRotation+=10;
   const arrow=document.querySelector(".background-arrow");
-  const transformMatch=arrow.style.transform.match(/scale\([0-9.]+\)/);
-  const scale=transformMatch ? transformMatch[0]:"scale(1)";
+  const scaleMatch=arrow.style.transform.match(/scale\([0-9.]+\)/);
+  const scale=scaleMatch?scaleMatch[0]:"scale(1)";
   arrow.style.transform=`translate(-50%,-50%) rotate(${arrowRotation}deg) ${scale}`;
 },20000);
 
