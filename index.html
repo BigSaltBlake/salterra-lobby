@@ -73,12 +73,16 @@ body {
 
 /* Horizontal logos */
 .logo-horizontal {
-  width: 240px;
+  max-width: 25vw; /* max 25% of viewport width */
+  width: auto;
 }
+
+
 
 /* Vertical logos */
 .logo-vertical {
-  width: 140px;
+  max-width: 15vw;
+  width: auto;
 }
 
 .logo-top-left {
@@ -291,12 +295,17 @@ if(item.type === "tax"){
   arrow.className = "background-arrow arrow-top-right";
 }
 
+// Ensure arrow is visible and colored for appreciation type
 if(item.type === "appreciation"){
   accent.style.background = "var(--blue)";
   arrowStop1.setAttribute("stop-color", "#1E73D8");
   arrowStop2.setAttribute("stop-color", "#4AA3FF");
+
+  const arrow = document.querySelector(".background-arrow");
   arrow.className = "background-arrow arrow-bottom-left";
+  arrow.style.opacity = "0.18"; // make sure arrow is visible
 }
+
 
 if(item.type === "strategy"){
   header.textContent = "STRATEGIC NOTE";
