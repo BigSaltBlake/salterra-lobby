@@ -68,8 +68,17 @@ body {
 }
 #lobby-logo {
   position: absolute;
-  width: 220px;
   transition: all 1.5s ease-in-out;
+}
+
+/* Horizontal logos */
+.logo-horizontal {
+  width: 240px;
+}
+
+/* Vertical logos */
+.logo-vertical {
+  width: 140px;
 }
 
 .logo-top-left {
@@ -345,7 +354,18 @@ function rotateLogo() {
 
   setTimeout(() => {
     currentLogoIndex = (currentLogoIndex + 1) % logos.length;
-    logoImg.src = logos[currentLogoIndex];
+    const newLogo = logos[currentLogoIndex];
+logoImg.src = newLogo;
+
+// Reset logo sizing classes
+logoContainer.classList.remove("logo-horizontal", "logo-vertical");
+
+if (newLogo.includes("horizontal")) {
+  logoContainer.classList.add("logo-horizontal");
+} else {
+  logoContainer.classList.add("logo-vertical");
+}
+
 
     logoContainer.classList.remove(positions[currentPositionIndex]);
     currentPositionIndex = (currentPositionIndex + 1) % positions.length;
