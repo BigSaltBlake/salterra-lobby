@@ -67,9 +67,7 @@ body {
   transition: all 1.5s ease-in-out;
 }
 
-/* Horizontal logos */
 .logo-horizontal { max-width: 180px; width: auto; }
-/* Vertical logos */
 .logo-vertical { max-width: 140px; width: auto; }
 
 .logo-top-left { top: 40px; left: 60px; }
@@ -124,7 +122,7 @@ body {
 </div>
   
 <div id="lobby-logo">
-  <img id="rotating-logo" src="logo-primary-horizontal.svg" />
+  <img id="rotating-logo" src="logos/logo-primary-horizontal.svg" />
 </div>
 
 <script>
@@ -189,17 +187,14 @@ function rotate() {
   const arrowStop1 = document.getElementById("arrowStop1");
   const arrowStop2 = document.getElementById("arrowStop2");
 
-  // Reset
   header.textContent = "";
   header.style.color = "var(--purple)";
   accent.style.background = "var(--purple)";
 
-  // Scale & opacity
   if(item.weight >= 4) { arrow.style.transform = "translate(-50%, -50%) scale(1.2)"; arrow.style.opacity="0.22"; }
   else if(item.weight >= 2) { arrow.style.transform = "translate(-50%, -50%) scale(1)"; arrow.style.opacity="0.18"; }
   else { arrow.style.transform = "translate(-50%, -50%) scale(0.85)"; arrow.style.opacity="0.15"; }
 
-  // Slide type
   switch(item.type) {
     case "tax":
       header.textContent="TAX REMINDER";
@@ -234,7 +229,6 @@ function rotate() {
   }
 
   if(item.type !== "brand") setQuoteText(item.text);
-
   index = (index+1) % content.length;
 }
 
@@ -248,10 +242,10 @@ init();
 
 // ===== Logo Rotation =====
 const logos = [
-  "logo-primary-horizontal.svg",
-  "logo-primary.svg",
-  "logo-secondary-horizontal.svg",
-  "logo-secondary.svg"
+  "logos/logo-primary-horizontal.svg",
+  "logos/logo-primary.svg",
+  "logos/logo-secondary-horizontal.svg",
+  "logos/logo-secondary.svg"
 ];
 
 const positions = ["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
@@ -297,4 +291,3 @@ setInterval(()=>{
 </script>
 </body>
 </html>
-
