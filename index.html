@@ -23,17 +23,19 @@ body{
   align-items:center;
   justify-content:center;
   background:var(--light);
+  color:#1A1F24;
   font-family:'Cormorant Garamond',serif;
+  transition:background 2s ease, color 2s ease;
 }
 
-/* ===== CONTENT SAFE AREA ===== */
+/* ===== SAFE CONTENT AREA ===== */
 .container{
   width:60%;
   max-width:1100px;
   text-align:center;
   z-index:5;
   position:relative;
-  padding:60px 20px;
+  padding:60px 40px;
 }
 
 .header{
@@ -41,6 +43,7 @@ body{
   font-size:18px;
   letter-spacing:3px;
   margin-bottom:35px;
+  opacity:.8;
 }
 
 .quote{
@@ -48,7 +51,7 @@ body{
   line-height:1.25;
   max-height:55vh;
   overflow:hidden;
-  transition:opacity .6s ease, transform .6s ease;
+  transition:opacity .8s ease, transform .8s ease;
 }
 
 .quote.fade-out{
@@ -58,9 +61,9 @@ body{
 
 .accent{
   height:4px;
-  width:140px;
+  width:150px;
   margin:45px auto 0;
-  transition:background 1s ease;
+  transition:background 1.2s ease;
 }
 
 /* ===== LOGO ===== */
@@ -75,7 +78,7 @@ body{
   max-height:110px;
   width:auto;
   height:auto;
-  transition:opacity .5s ease;
+  transition:opacity .6s ease;
 }
 
 .logo-top-left{ top:40px; left:60px; }
@@ -87,18 +90,20 @@ body{
 .background-arrow{
   position:absolute;
   width:1100px;
-  opacity:0.07;
+  opacity:0.06;
   z-index:0;
   pointer-events:none;
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  animation: spinClockwise 120s linear infinite;
+  animation:spinClockwise 120s linear infinite,
+            zoomPulse 20s ease-in-out infinite;
 }
 
-.background-arrow.zoom{
-  animation: spinClockwise 120s linear infinite,
-             zoomPulse 18s ease-in-out infinite;
+.background-arrow svg{ width:100%; }
+
+.background-arrow stop{
+  transition:stop-color 1.2s ease;
 }
 
 @keyframes spinClockwise{
@@ -116,16 +121,12 @@ body{
   50%{ transform:translate(-50%,-50%) scale(1.05) rotate(180deg); }
   100%{ transform:translate(-50%,-50%) scale(1) rotate(360deg); }
 }
-
-.background-arrow svg{ width:100%; }
-.background-arrow stop{ transition:stop-color 1s ease; }
-
 </style>
 </head>
 <body>
 
-<!-- BACKGROUND ARROW -->
-<div class="background-arrow zoom" id="arrow">
+<!-- Background Arrow -->
+<div class="background-arrow" id="arrow">
   <svg viewBox="0 0 600 400">
     <defs>
       <linearGradient id="arrowGradient">
@@ -142,14 +143,14 @@ body{
   </svg>
 </div>
 
-<!-- CONTENT -->
+<!-- Content -->
 <div class="container">
-  <div class="header">STRATEGY</div>
+  <div class="header">SALTerra</div>
   <div class="quote" id="quote"></div>
   <div class="accent" id="accent"></div>
 </div>
 
-<!-- LOGO -->
+<!-- Logo -->
 <div id="logo-container" class="logo-top-right">
   <img id="logo-img" src="logo-primary-horizontal.png">
 </div>
@@ -157,12 +158,12 @@ body{
 <script>
 
 /* ===== CONFIG ===== */
-
+const SHEET_URL = "https://opensheet.elk.sh/1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk/Content";
 const SLIDE_DURATION = 30000;
 
 const logos = {
-  purple: "logo-primary-horizontal.png",
-  blue: "logo-secondary-horizontal.png"
+  purple:"logo-primary-horizontal.png",
+  blue:"logo-secondary-horizontal.png"
 };
 
 const positions = [
@@ -172,89 +173,109 @@ const positions = [
   "logo-bottom-left"
 ];
 
-const quotes = [
-  "Welcome to Salterra.",
-  "Design with intention.",
-  "Strategy creates clarity.",
-  "Build with purpose."
-];
-
-let slideIndex = 0;
+let slides = [];
+let index = 0;
 let theme = "purple";
 
-/* ===== TEXT FIT ===== */
+/* ===== GOOGLE SHEET ===== */
+async function fetchSlides(){
+  try{
+    const res = await fetch(SHEET_URL);
+    const data = await res.json();
+    slides = data
+      .filter(r=>r.Active && r.Active.toLowerCase()==="true")
+      .map(r=>r.Text);
+  }catch(e){
+    console.error("Sheet failed. Using fallback.");
+    slides = [
+      "Welcome to Salterra.",
+      "Design with intention.",
+      "Strategy creates clarity."
+    ];
+  }
+}
 
+/* ===== NIGHT MODE ===== */
+function applyDayNight(){
+  const hour = new Date().getHours();
+  const night = hour >= 19 || hour < 7;
+  if(night){
+    document.body.style.background="var(--dark)";
+    document.body.style.color="#FFFFFF";
+  }else{
+    document.body.style.background="var(--light)";
+    document.body.style.color="#1A1F24";
+  }
+}
+
+/* ===== FIT TEXT ===== */
 function fitText(){
-  const q = document.getElementById("quote");
+  const el = document.getElementById("quote");
   let size = 64;
-  q.style.fontSize = size + "px";
-
-  while(q.scrollHeight > q.offsetHeight && size > 28){
-    size -= 2;
-    q.style.fontSize = size + "px";
+  el.style.fontSize=size+"px";
+  while(el.scrollHeight > el.offsetHeight && size>28){
+    size-=2;
+    el.style.fontSize=size+"px";
   }
 }
 
 /* ===== MASTER SLIDE UPDATE ===== */
-
 function updateSlide(){
 
-  const quoteEl = document.getElementById("quote");
-  const accent = document.getElementById("accent");
-  const stop1 = document.getElementById("stop1");
-  const stop2 = document.getElementById("stop2");
-  const logoImg = document.getElementById("logo-img");
-  const logoContainer = document.getElementById("logo-container");
-  const arrow = document.getElementById("arrow");
+  const quoteEl=document.getElementById("quote");
+  const accent=document.getElementById("accent");
+  const stop1=document.getElementById("stop1");
+  const stop2=document.getElementById("stop2");
+  const logoImg=document.getElementById("logo-img");
+  const logoContainer=document.getElementById("logo-container");
+  const arrow=document.getElementById("arrow");
 
-  /* Fade out text */
   quoteEl.classList.add("fade-out");
 
   setTimeout(()=>{
 
-    /* Update text */
-    quoteEl.textContent = quotes[slideIndex];
+    quoteEl.textContent=slides[index];
     fitText();
     quoteEl.classList.remove("fade-out");
 
-    /* Toggle theme */
-    theme = theme === "purple" ? "blue" : "purple";
+    theme = theme==="purple"?"blue":"purple";
 
-    /* COLOR SYSTEM */
-    if(theme === "blue"){
-      accent.style.background = "var(--blue)";
+    if(theme==="blue"){
+      accent.style.background="var(--blue)";
       stop1.setAttribute("stop-color","#1E73D8");
       stop2.setAttribute("stop-color","#4AA3FF");
-      arrow.style.animation = "spinCounter 120s linear infinite, zoomPulse 18s ease-in-out infinite";
-    } else {
-      accent.style.background = "var(--purple)";
+      arrow.style.animation="spinCounter 120s linear infinite, zoomPulse 20s ease-in-out infinite";
+    }else{
+      accent.style.background="var(--purple)";
       stop1.setAttribute("stop-color","#6A3DF0");
       stop2.setAttribute("stop-color","#8C52FF");
-      arrow.style.animation = "spinClockwise 120s linear infinite, zoomPulse 18s ease-in-out infinite";
+      arrow.style.animation="spinClockwise 120s linear infinite, zoomPulse 20s ease-in-out infinite";
     }
 
-    /* LOGO FADE + SWAP */
-    logoImg.style.opacity = 0;
+    logoImg.style.opacity=0;
     setTimeout(()=>{
-      logoImg.src = logos[theme];
-      logoImg.style.opacity = 1;
-    }, 400);
+      logoImg.src=logos[theme];
+      logoImg.style.opacity=1;
+    },400);
 
-    /* LOGO POSITION ROTATION */
     logoContainer.classList.remove(...positions);
-    logoContainer.classList.add(positions[slideIndex % positions.length]);
+    logoContainer.classList.add(positions[index%positions.length]);
 
-    slideIndex++;
+    index=(index+1)%slides.length;
 
-  }, 600);
+  },800);
 }
 
 /* ===== INIT ===== */
+async function init(){
+  await fetchSlides();
+  applyDayNight();
+  updateSlide();
+  setInterval(updateSlide,SLIDE_DURATION);
+}
 
-updateSlide();
-setInterval(updateSlide, SLIDE_DURATION);
+init();
 
 </script>
-
 </body>
 </html>
