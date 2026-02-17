@@ -5,277 +5,297 @@
 <title>Salterra Lobby Display</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
   --purple:#6A3DF0;
   --blue:#1E73D8;
-  --light:#F4F4F2;
-  --dark:#111417;
+  --charcoal:#0f1115;
+  --lightbg:#F4F4F2;
 }
 
 body{
   margin:0;
-  height:100vh;
-  overflow:hidden;
+  font-family:'Cormorant Garamond',serif;
+  background:var(--lightbg);
   display:flex;
   align-items:center;
   justify-content:center;
-  background:var(--light);
-  color:#1A1F24;
-  font-family:'Cormorant Garamond',serif;
-  transition:background 2s ease, color 2s ease;
-}
-
-/* ===== SAFE CONTENT AREA ===== */
-.container{
-  width:60%;
-  max-width:1100px;
-  text-align:center;
-  z-index:5;
+  height:100vh;
+  overflow:hidden;
   position:relative;
-  padding:60px 40px;
+  transition:background 1.5s ease,color 1.5s ease;
 }
 
-.header{
+/* Cinematic intro overlay */
+#intro{
+  position:fixed;
+  inset:0;
+  background:var(--charcoal);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  animation:introFade 3s forwards;
+}
+#intro h1{
+  color:white;
   font-family:'Inter',sans-serif;
-  font-size:18px;
-  letter-spacing:3px;
-  margin-bottom:35px;
-  opacity:.8;
+  font-size:48px;
+  letter-spacing:4px;
+  animation:introText 2.5s ease forwards;
+}
+@keyframes introFade{
+  0%{opacity:1;}
+  85%{opacity:1;}
+  100%{opacity:0;visibility:hidden;}
+}
+@keyframes introText{
+  0%{opacity:0;transform:scale(.9);}
+  100%{opacity:1;transform:scale(1);}
+}
+
+/* Ambient gradient atmosphere */
+body::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(106,61,240,.08), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(30,115,216,.08), transparent 60%);
+  pointer-events:none;
+  z-index:0;
+  transition:opacity 2s ease;
+}
+
+/* Arrow */
+.background-arrow{
+  position:absolute;
+  width:1100px;
+  opacity:.08;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  animation:spin 140s linear infinite;
+  transition:opacity 1.5s ease;
+}
+@keyframes spin{
+  from{transform:translate(-50%,-50%) rotate(0deg);}
+  to{transform:translate(-50%,-50%) rotate(360deg);}
+}
+
+/* Text container */
+.container{
+  position:relative;
+  z-index:10;
+  text-align:center;
+  max-width:65%;
+  padding:60px;
+  margin-top:40px;
 }
 
 .quote{
-  font-size:64px;
-  line-height:1.25;
-  max-height:55vh;
+  font-size:72px;
+  line-height:1.15;
+  font-weight:600;
+  letter-spacing:-1px;
+  max-height:60vh;
   overflow:hidden;
   transition:opacity .8s ease, transform .8s ease;
 }
 
-.quote.fade-out{
-  opacity:0;
-  transform:translateY(10px);
-}
-
 .accent{
-  height:4px;
-  width:150px;
-  margin:45px auto 0;
-  transition:background 1.2s ease;
+  height:6px;
+  width:200px;
+  margin:60px auto 0;
+  border-radius:4px;
+  transition:background 1.2s ease, box-shadow 1.2s ease;
 }
 
-/* ===== LOGO ===== */
+/* Logo */
 #logo-container{
   position:absolute;
-  z-index:4;
+  z-index:20;
   transition:all 1s ease;
 }
-
 #logo-container img{
-  max-width:240px;
-  max-height:110px;
+  max-width:260px;
+  max-height:120px;
   width:auto;
   height:auto;
-  transition:opacity .6s ease;
+  transition:opacity .6s ease, transform 1.2s ease;
 }
+.logo-hidden{opacity:0;}
 
-.logo-top-left{ top:40px; left:60px; }
-.logo-top-right{ top:40px; right:60px; }
-.logo-bottom-left{ bottom:40px; left:60px; }
-.logo-bottom-right{ bottom:40px; right:60px; }
-
-/* ===== BACKGROUND ARROW ===== */
-.background-arrow{
-  position:absolute;
-  width:1100px;
-  opacity:0.06;
-  z-index:0;
-  pointer-events:none;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  animation:spinClockwise 120s linear infinite,
-            zoomPulse 20s ease-in-out infinite;
-}
-
-.background-arrow svg{ width:100%; }
-
-.background-arrow stop{
-  transition:stop-color 1.2s ease;
-}
-
-@keyframes spinClockwise{
-  from{ transform:translate(-50%,-50%) rotate(0deg); }
-  to{ transform:translate(-50%,-50%) rotate(360deg); }
-}
-
-@keyframes spinCounter{
-  from{ transform:translate(-50%,-50%) rotate(0deg); }
-  to{ transform:translate(-50%,-50%) rotate(-360deg); }
-}
-
-@keyframes zoomPulse{
-  0%{ transform:translate(-50%,-50%) scale(1) rotate(0deg); }
-  50%{ transform:translate(-50%,-50%) scale(1.05) rotate(180deg); }
-  100%{ transform:translate(-50%,-50%) scale(1) rotate(360deg); }
-}
+/* Logo positions */
+.top-left{top:40px;left:60px;}
+.top-right{top:40px;right:60px;}
+.bottom-left{bottom:60px;left:60px;}
+.bottom-right{bottom:60px;right:60px;}
 </style>
 </head>
 <body>
 
-<!-- Background Arrow -->
-<div class="background-arrow" id="arrow">
-  <svg viewBox="0 0 600 400">
-    <defs>
-      <linearGradient id="arrowGradient">
-        <stop id="stop1" offset="0%" stop-color="#6A3DF0"/>
-        <stop id="stop2" offset="100%" stop-color="#8C52FF"/>
-      </linearGradient>
-    </defs>
-    <path d="M300 60 L480 200 L300 340"
-          stroke="url(#arrowGradient)"
-          stroke-width="70"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          fill="none"/>
-  </svg>
+<div id="intro">
+  <h1>SALTERRA</h1>
 </div>
 
-<!-- Content -->
+<!-- Arrow -->
+<div class="background-arrow">
+<svg viewBox="0 0 600 400">
+<defs>
+<linearGradient id="arrowGradient">
+<stop id="stop1" offset="0%" stop-color="#6A3DF0"/>
+<stop id="stop2" offset="100%" stop-color="#8C52FF"/>
+</linearGradient>
+</defs>
+<path d="M300 60 L480 200 L300 340"
+stroke="url(#arrowGradient)"
+stroke-width="60"
+stroke-linecap="round"
+stroke-linejoin="round"
+fill="none"/>
+</svg>
+</div>
+
+<!-- Text -->
 <div class="container">
-  <div class="header">SALTerra</div>
-  <div class="quote" id="quote"></div>
-  <div class="accent" id="accent"></div>
+  <div id="quote" class="quote"></div>
+  <div id="accent" class="accent"></div>
 </div>
 
 <!-- Logo -->
-<div id="logo-container" class="logo-top-right">
-  <img id="logo-img" src="logo-primary-horizontal.png">
+<div id="logo-container" class="top-right">
+<img id="logo" src="logo-primary-horizontal.png">
 </div>
 
 <script>
+const SHEET_URL="https://opensheet.elk.sh/1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk/Content";
 
-/* ===== CONFIG ===== */
-const SHEET_URL = "https://opensheet.elk.sh/1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk/Content";
-const SLIDE_DURATION = 30000;
+let slides=[];
+let index=0;
 
-const logos = {
-  purple:"logo-primary-horizontal.png",
-  blue:"logo-secondary-horizontal.png"
-};
-
-const positions = [
-  "logo-top-left",
-  "logo-top-right",
-  "logo-bottom-right",
-  "logo-bottom-left"
-];
-
-let slides = [];
-let index = 0;
-let theme = "purple";
-
-/* ===== GOOGLE SHEET ===== */
 async function fetchSlides(){
   try{
-    const res = await fetch(SHEET_URL);
-    const data = await res.json();
-    slides = data
-      .filter(r=>r.Active && r.Active.toLowerCase()==="true")
-      .map(r=>r.Text);
+    const res=await fetch(SHEET_URL);
+    const data=await res.json();
+
+    let weighted=[];
+    data.forEach(r=>{
+      const active=(r.Active||"").toLowerCase().trim();
+      if(active==="true"||active==="yes"||active==="1"){
+        const weight=parseInt(r.Weight)||1;
+        for(let i=0;i<weight;i++){
+          weighted.push((r.Text||"").trim());
+        }
+      }
+    });
+
+    slides=weighted.filter(t=>t.length>0);
+
+    if(!slides.length) throw "No slides";
+
   }catch(e){
-    console.error("Sheet failed. Using fallback.");
-    slides = [
-      "Welcome to Salterra.",
-      "Design with intention.",
-      "Strategy creates clarity."
+    console.error(e);
+    slides=[
+      "Vision shapes reality.",
+      "Bold strategy creates clarity.",
+      "Design with intention."
     ];
   }
 }
 
-/* ===== NIGHT MODE ===== */
-function applyDayNight(){
-  const hour = new Date().getHours();
-  const night = hour >= 19 || hour < 7;
-  if(night){
-    document.body.style.background="var(--dark)";
-    document.body.style.color="#FFFFFF";
-  }else{
-    document.body.style.background="var(--light)";
-    document.body.style.color="#1A1F24";
-  }
+function setQuote(text){
+  const q=document.getElementById("quote");
+  q.style.opacity=0;
+  q.style.transform="translateY(20px)";
+  setTimeout(()=>{
+    q.textContent=text;
+    autoScaleText();
+    q.style.opacity=1;
+    q.style.transform="translateY(0)";
+  },400);
 }
 
-/* ===== FIT TEXT ===== */
-function fitText(){
-  const el = document.getElementById("quote");
-  let size = 64;
-  el.style.fontSize=size+"px";
-  while(el.scrollHeight > el.offsetHeight && size>28){
+function autoScaleText(){
+  const q=document.getElementById("quote");
+  let size=72;
+  q.style.fontSize=size+"px";
+  while((q.scrollHeight>window.innerHeight*0.6||q.scrollWidth>q.parentElement.offsetWidth) && size>28){
     size-=2;
-    el.style.fontSize=size+"px";
+    q.style.fontSize=size+"px";
   }
 }
 
-/* ===== MASTER SLIDE UPDATE ===== */
 function updateSlide(){
-
-  const quoteEl=document.getElementById("quote");
+  const theme=index%2===0?"purple":"blue";
   const accent=document.getElementById("accent");
   const stop1=document.getElementById("stop1");
   const stop2=document.getElementById("stop2");
-  const logoImg=document.getElementById("logo-img");
-  const logoContainer=document.getElementById("logo-container");
-  const arrow=document.getElementById("arrow");
+  const logo=document.getElementById("logo");
 
-  quoteEl.classList.add("fade-out");
+  if(theme==="blue"){
+    accent.style.background="var(--blue)";
+    accent.style.boxShadow="0 0 30px rgba(30,115,216,.4)";
+    stop1.setAttribute("stop-color","#1E73D8");
+    stop2.setAttribute("stop-color","#4AA3FF");
+    logo.src=index%4<2?
+      "logo-secondary-horizontal.png":
+      "logo-secondary.png";
+  }else{
+    accent.style.background="var(--purple)";
+    accent.style.boxShadow="0 0 30px rgba(106,61,240,.4)";
+    stop1.setAttribute("stop-color","#6A3DF0");
+    stop2.setAttribute("stop-color","#8C52FF");
+    logo.src=index%4<2?
+      "logo-primary-horizontal.png":
+      "logo-primary.png";
+  }
 
-  setTimeout(()=>{
+  setQuote(slides[index%slides.length]);
 
-    quoteEl.textContent=slides[index];
-    fitText();
-    quoteEl.classList.remove("fade-out");
-
-    theme = theme==="purple"?"blue":"purple";
-
-    if(theme==="blue"){
-      accent.style.background="var(--blue)";
-      stop1.setAttribute("stop-color","#1E73D8");
-      stop2.setAttribute("stop-color","#4AA3FF");
-      arrow.style.animation="spinCounter 120s linear infinite, zoomPulse 20s ease-in-out infinite";
-    }else{
-      accent.style.background="var(--purple)";
-      stop1.setAttribute("stop-color","#6A3DF0");
-      stop2.setAttribute("stop-color","#8C52FF");
-      arrow.style.animation="spinClockwise 120s linear infinite, zoomPulse 20s ease-in-out infinite";
-    }
-
-    logoImg.style.opacity=0;
-    setTimeout(()=>{
-      logoImg.src=logos[theme];
-      logoImg.style.opacity=1;
-    },400);
-
-    logoContainer.classList.remove(...positions);
-    logoContainer.classList.add(positions[index%positions.length]);
-
-    index=(index+1)%slides.length;
-
-  },800);
+  index++;
 }
 
-/* ===== INIT ===== */
+/* Parallax drift */
+document.addEventListener("mousemove",e=>{
+  const arrow=document.querySelector(".background-arrow");
+  const x=(e.clientX/window.innerWidth-.5)*20;
+  const y=(e.clientY/window.innerHeight-.5)*20;
+  arrow.style.marginLeft=x+"px";
+  arrow.style.marginTop=y+"px";
+});
+
+/* Ambient float */
+setInterval(()=>{
+  const arrow=document.querySelector(".background-arrow");
+  arrow.style.marginLeft=(Math.random()*10-5)+"px";
+  arrow.style.marginTop=(Math.random()*10-5)+"px";
+},6000);
+
+/* Logo position sync */
+const positions=["top-right","bottom-right","bottom-left","top-left"];
+let posIndex=0;
+function rotateLogoPosition(){
+  const container=document.getElementById("logo-container");
+  container.className=positions[posIndex];
+  posIndex=(posIndex+1)%positions.length;
+}
+
 async function init(){
   await fetchSlides();
-  applyDayNight();
   updateSlide();
-  setInterval(updateSlide,SLIDE_DURATION);
+  rotateLogoPosition();
+  setInterval(()=>{
+    updateSlide();
+    rotateLogoPosition();
+  },30000);
 }
 
 init();
-
 </script>
 </body>
 </html>
+
