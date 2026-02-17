@@ -30,8 +30,9 @@ body {
 .container {
   text-align: center;
   max-width: 65%;
+  padding: 20px;
   position: relative;
-  z-index: 4; /* above logos */
+  z-index: 5; /* above logo */
   color: #1A1F24;
   animation: fadeIn 2s ease;
 }
@@ -58,27 +59,17 @@ body {
   transition: background 1.5s ease;
 }
 
-/* Logo */
+/* Logo container */
 #lobby-logo {
   position: absolute;
   z-index: 3;
   transition: all 1s ease-in-out;
 }
 
-/* Logo sizing */
-.logo-horizontal {
-  max-width: 220px;
-  width: auto;
-  height: auto;
-}
-.logo-vertical {
-  max-width: 140px;
-  width: auto;
-  height: auto;
-}
-
 #lobby-logo img {
-  width: 100%;
+  width: auto;
+  max-width: 220px;
+  max-height: 100px; /* prevents full screen */
   height: auto;
   display: block;
   opacity: 1;
@@ -257,3 +248,4 @@ init();
 
 </body>
 </html>
+
