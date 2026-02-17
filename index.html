@@ -28,7 +28,7 @@ body{
   transition:background 1.5s ease,color 1.5s ease;
 }
 
-/* Cinematic intro overlay */
+/* Intro Overlay */
 #intro{
   position:fixed;
   inset:0;
@@ -37,24 +37,40 @@ body{
   align-items:center;
   justify-content:center;
   z-index:100;
-  animation:introFade 3s forwards;
+  animation:introFade 3.2s forwards;
 }
+
 #intro h1{
   color:white;
   font-family:'Inter',sans-serif;
   font-size:56px;
   font-weight:600;
   letter-spacing:1px;
-  animation:introText 2.5s ease forwards;
+  position:relative;
+  overflow:hidden;
 }
+
+/* Shimmer effect */
+#intro h1::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-150%;
+  width:150%;
+  height:100%;
+  background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,.6), transparent 70%);
+  animation:shimmer 2s ease forwards;
+}
+
+@keyframes shimmer{
+  0%{left:-150%;}
+  100%{left:150%;}
+}
+
 @keyframes introFade{
   0%{opacity:1;}
   85%{opacity:1;}
   100%{opacity:0;visibility:hidden;}
-}
-@keyframes introText{
-  0%{opacity:0;transform:scale(.9);}
-  100%{opacity:1;transform:scale(1);}
 }
 
 /* Ambient gradient atmosphere */
@@ -67,7 +83,6 @@ body::before{
     radial-gradient(circle at 70% 70%, rgba(30,115,216,.08), transparent 60%);
   pointer-events:none;
   z-index:0;
-  transition:opacity 2s ease;
 }
 
 /* Arrow */
@@ -87,14 +102,13 @@ body::before{
   to{transform:translate(-50%,-50%) rotate(360deg);}
 }
 
-/* Text container */
+/* Text */
 .container{
   position:relative;
   z-index:10;
   text-align:center;
   max-width:65%;
   padding:60px;
-  margin-top:40px;
 }
 
 .quote{
@@ -124,13 +138,10 @@ body::before{
 #logo-container img{
   max-width:260px;
   max-height:120px;
-  width:auto;
-  height:auto;
   transition:opacity .6s ease, transform 1.2s ease;
 }
 .logo-hidden{opacity:0;}
 
-/* Logo positions */
 .top-left{top:40px;left:60px;}
 .top-right{top:40px;right:60px;}
 .bottom-left{bottom:60px;left:60px;}
@@ -140,10 +151,9 @@ body::before{
 <body>
 
 <div id="intro">
-  <h1><span style="font-weight:700;">S</span>alterra</h1>
+  <h1>Salterra</h1>
 </div>
 
-<!-- Arrow -->
 <div class="background-arrow">
 <svg viewBox="0 0 600 400">
 <defs>
@@ -161,13 +171,11 @@ fill="none"/>
 </svg>
 </div>
 
-<!-- Text -->
 <div class="container">
   <div id="quote" class="quote"></div>
   <div id="accent" class="accent"></div>
 </div>
 
-<!-- Logo -->
 <div id="logo-container" class="top-right">
 <img id="logo" src="logo-primary-horizontal.png">
 </div>
@@ -176,35 +184,45 @@ fill="none"/>
 const SHEET_URL="https://opensheet.elk.sh/1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk/Content";
 
 let slides=[];
+let weightedSlides=[];
 let index=0;
+let rotationCount=0;
 
 async function fetchSlides(){
   try{
     const res=await fetch(SHEET_URL);
     const data=await res.json();
 
-    let weighted=[];
+    weightedSlides=[];
     data.forEach(r=>{
       const active=(r.Active||"").toLowerCase().trim();
       if(active==="true"||active==="yes"||active==="1"){
         const weight=parseInt(r.Weight)||1;
         for(let i=0;i<weight;i++){
-          weighted.push((r.Text||"").trim());
+          weightedSlides.push((r.Text||"").trim());
         }
       }
     });
 
-    slides=weighted.filter(t=>t.length>0);
-
+    slides=weightedSlides.filter(t=>t.length>0);
     if(!slides.length) throw "No slides";
 
   }catch(e){
-    console.error(e);
     slides=[
       "Vision shapes reality.",
       "Bold strategy creates clarity.",
       "Design with intention."
     ];
+  }
+}
+
+function autoScaleText(){
+  const q=document.getElementById("quote");
+  let size=72;
+  q.style.fontSize=size+"px";
+  while((q.scrollHeight>window.innerHeight*0.6||q.scrollWidth>q.parentElement.offsetWidth) && size>28){
+    size-=2;
+    q.style.fontSize=size+"px";
   }
 }
 
@@ -220,16 +238,6 @@ function setQuote(text){
   },400);
 }
 
-function autoScaleText(){
-  const q=document.getElementById("quote");
-  let size=72;
-  q.style.fontSize=size+"px";
-  while((q.scrollHeight>window.innerHeight*0.6||q.scrollWidth>q.parentElement.offsetWidth) && size>28){
-    size-=2;
-    q.style.fontSize=size+"px";
-  }
-}
-
 function updateSlide(){
   const theme=index%2===0?"purple":"blue";
   const accent=document.getElementById("accent");
@@ -237,30 +245,34 @@ function updateSlide(){
   const stop2=document.getElementById("stop2");
   const logo=document.getElementById("logo");
 
+  if(rotationCount>0 && rotationCount%10===0){
+    setQuote("Salterra CFO");
+  }else{
+    setQuote(slides[index%slides.length]);
+  }
+
   if(theme==="blue"){
     accent.style.background="var(--blue)";
     accent.style.boxShadow="0 0 30px rgba(30,115,216,.4)";
     stop1.setAttribute("stop-color","#1E73D8");
     stop2.setAttribute("stop-color","#4AA3FF");
-    logo.src=index%4<2?
-      "logo-secondary-horizontal.png":
-      "logo-secondary.png";
+    logo.src=index%4<2?"logo-secondary-horizontal.png":"logo-secondary.png";
   }else{
     accent.style.background="var(--purple)";
     accent.style.boxShadow="0 0 30px rgba(106,61,240,.4)";
     stop1.setAttribute("stop-color","#6A3DF0");
     stop2.setAttribute("stop-color","#8C52FF");
-    logo.src=index%4<2?
-      "logo-primary-horizontal.png":
-      "logo-primary.png";
+    logo.src=index%4<2?"logo-primary-horizontal.png":"logo-primary.png";
   }
 
-  setQuote(slides[index%slides.length]);
+  logo.style.transform="scale(1.05)";
+  setTimeout(()=>logo.style.transform="scale(1)",1200);
 
   index++;
+  rotationCount++;
 }
 
-/* Parallax drift */
+/* Parallax */
 document.addEventListener("mousemove",e=>{
   const arrow=document.querySelector(".background-arrow");
   const x=(e.clientX/window.innerWidth-.5)*20;
@@ -276,7 +288,6 @@ setInterval(()=>{
   arrow.style.marginTop=(Math.random()*10-5)+"px";
 },6000);
 
-/* Logo position sync */
 const positions=["top-right","bottom-right","bottom-left","top-left"];
 let posIndex=0;
 function rotateLogoPosition(){
@@ -287,12 +298,14 @@ function rotateLogoPosition(){
 
 async function init(){
   await fetchSlides();
-  updateSlide();
-  rotateLogoPosition();
-  setInterval(()=>{
+  setTimeout(()=>{
     updateSlide();
     rotateLogoPosition();
-  },30000);
+    setInterval(()=>{
+      updateSlide();
+      rotateLogoPosition();
+    },30000);
+  },3200);
 }
 
 init();
