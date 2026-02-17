@@ -119,14 +119,29 @@ body {
 }
 .background-arrow {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 900px;
-  transform: translate(-50%, -50%) rotate(0deg);
-  opacity: 0.06;
+  width: 1000px;
+  opacity: 0.07;
   z-index: 0;
   pointer-events: none;
-  transition: transform 20s linear;
+  transition: transform 20s linear, top 3s ease, left 3s ease;
+}
+
+.arrow-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-top-right {
+  top: 30%;
+  left: 70%;
+  transform: translate(-50%, -50%);
+}
+
+.arrow-bottom-left {
+  top: 70%;
+  left: 30%;
+  transform: translate(-50%, -50%);
 }
 
 .background-arrow svg {
@@ -153,20 +168,26 @@ body {
 </head>
 
 <body>
-<div class="background-arrow">
+<div class="background-arrow arrow-center">
+
 <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+   <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop id="arrowStop1" offset="0%" stop-color="#6A3DF0"/>
+  <stop id="arrowStop2" offset="100%" stop-color="#8C52FF"/>
+</linearGradient>
+
       <stop offset="0%" stop-color="#6A3DF0"/>
       <stop offset="100%" stop-color="#8C52FF"/>
     </linearGradient>
   </defs>
-  <path d="M300 120 L500 200 L300 280"
-        stroke="url(#arrowGradient)"
-        stroke-width="60"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        fill="none"/>
+  <path d="M260 120 L540 200 L260 280"
+      stroke="url(#arrowGradient)"
+      stroke-width="60"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"/>
+
 </svg>
 </div>
 
@@ -236,21 +257,36 @@ function rotate() {
   const header = document.getElementById("header");
   const quote = document.getElementById("quote");
   const accent = document.getElementById("accent");
+const arrowStop1 = document.getElementById("arrowStop1");
+const arrowStop2 = document.getElementById("arrowStop2");
+const arrow = document.querySelector(".background-arrow");
 
   header.textContent = "";
   header.style.color = "var(--purple)";
   accent.style.background = "var(--purple)";
 
-  if(item.type === "tax"){
-    header.textContent = "TAX REMINDER";
-  }
-  if(item.type === "appreciation"){
-    accent.style.background = "var(--blue)";
-  }
-  if(item.type === "strategy"){
-    header.textContent = "STRATEGIC NOTE";
-    header.style.color = "var(--blue)";
-  }
+if(item.type === "tax"){
+  header.textContent = "TAX REMINDER";
+  arrowStop1.setAttribute("stop-color", "#6A3DF0");
+  arrowStop2.setAttribute("stop-color", "#8C52FF");
+  arrow.className = "background-arrow arrow-top-right";
+}
+
+if(item.type === "appreciation"){
+  accent.style.background = "var(--blue)";
+  arrowStop1.setAttribute("stop-color", "#1E73D8");
+  arrowStop2.setAttribute("stop-color", "#4AA3FF");
+  arrow.className = "background-arrow arrow-bottom-left";
+}
+
+if(item.type === "strategy"){
+  header.textContent = "STRATEGIC NOTE";
+  header.style.color = "var(--blue)";
+  arrowStop1.setAttribute("stop-color", "#1E73D8");
+  arrowStop2.setAttribute("stop-color", "#4AA3FF");
+  arrow.className = "background-arrow arrow-center";
+}
+
   if(item.type === "brand"){
     header.textContent = "";
     quote.textContent = "Salterra CFO";
