@@ -31,6 +31,8 @@ body {
   text-align: center;
   max-width: 65%;
   animation: fadeIn 2s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .header {
@@ -53,19 +55,11 @@ body {
   transition: background 1s ease;
 }
 
-.arrow {
-  position: absolute;
-  bottom: 40px;
-  right: 60px;
-  font-size: 80px;
-  opacity: 0.05;
-  font-family: 'Inter', sans-serif;
-}
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 #lobby-logo {
   position: absolute;
   transition: all 1.5s ease-in-out;
@@ -73,7 +67,7 @@ body {
 
 /* Horizontal logos */
 .logo-horizontal {
-  max-width: 180px;  /* smaller and responsive */
+  max-width: 180px;
   width: auto;
 }
 
@@ -83,128 +77,56 @@ body {
   width: auto;
 }
 
-/* Dark mode filter (optional if using PNG variants) */
-#lobby-logo.dark img {
-  filter: brightness(0) invert(1);
-}
-
-
-.logo-top-left {
-  top: 40px;
-  left: 60px;
-}
-
-.logo-top-right {
-  top: 40px;
-  right: 60px;
-}
-
-.logo-bottom-left {
-  bottom: 60px;
-  left: 60px;
-}
-
-.logo-bottom-right {
-  bottom: 60px;
-  right: 60px;
-}
+.logo-top-left { top: 40px; left: 60px; }
+.logo-top-right { top: 40px; right: 60px; }
+.logo-bottom-left { bottom: 60px; left: 60px; }
+.logo-bottom-right { bottom: 60px; right: 60px; }
 
 #lobby-logo img {
   width: 100%;
   transition: opacity 1.5s ease-in-out;
 }
 
-.logo-hidden {
-  opacity: 0;
-}
-.brand-arrow {
-  position: absolute;
-  bottom: 60px;
-  right: 80px;
-  width: 220px;
-  opacity: 0.08;
-  transition: opacity 2s ease, transform 8s ease-in-out;
-}
+.logo-hidden { opacity: 0; }
 
-.brand-arrow svg {
-  width: 100%;
-  height: auto;
-}
-
-.brand-arrow:hover {
-  opacity: 0.15;
-}
 .background-arrow {
   position: absolute;
   width: 1000px;
-  opacity: 0.07;
+  opacity: 0.08; 
   z-index: 0;
   pointer-events: none;
-  transition: transform 20s linear, top 3s ease, left 3s ease;
+  transition: opacity 2s ease, transform 8s ease-in-out, stop-color 1s ease;
 }
 
-.arrow-center {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.background-arrow stop {
+  transition: stop-color 1s ease;
 }
 
-.arrow-top-right {
-  top: 30%;
-  left: 70%;
-  transform: translate(-50%, -50%);
-}
+.arrow-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.arrow-top-right { top: 30%; left: 70%; transform: translate(-50%, -50%); }
+.arrow-bottom-left { top: 70%; left: 30%; transform: translate(-50%, -50%); }
 
-.arrow-bottom-left {
-  top: 70%;
-  left: 30%;
-  transform: translate(-50%, -50%);
-}
+.background-arrow svg { width: 100%; height: auto; }
 
-.background-arrow svg {
-  width: 100%;
-  height: auto;
-}
-
-.container {
-  position: relative;
-  z-index: 2;
-}
-
-.background-arrow svg {
-  width: 100%;
-  height: auto;
-}
-
-.container {
-  position: relative;
-  z-index: 2;
-}
-  
 </style>
 </head>
 
 <body>
 <div class="background-arrow arrow-center">
-
-<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
- <defs>
-  <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop id="arrowStop1" offset="0%" stop-color="#6A3DF0"/>
-    <stop id="arrowStop2" offset="100%" stop-color="#8C52FF"/>
-  </linearGradient>
-</defs>
-
-<path d="M300 60 L480 200 L300 340"
-      stroke="url(#arrowGradient)"
-      stroke-width="60"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      fill="none"/>
-
-
-
-</svg>
+  <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop id="arrowStop1" offset="0%" stop-color="#6A3DF0"/>
+        <stop id="arrowStop2" offset="100%" stop-color="#8C52FF"/>
+      </linearGradient>
+    </defs>
+    <path d="M300 60 L480 200 L300 340"
+          stroke="url(#arrowGradient)"
+          stroke-width="60"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"/>
+  </svg>
 </div>
 
 <div class="container">
@@ -229,7 +151,6 @@ async function fetchSheet() {
   try {
     const response = await fetch(SHEET_URL);
     const data = await response.json();
-
     content = data
       .filter(row => row.Active && row.Active.toLowerCase() === "true")
       .map(row => ({
@@ -237,7 +158,6 @@ async function fetchSheet() {
         text: row.Text,
         weight: parseInt(row.Weight) || 1
       }));
-
     weightedShuffle();
   } catch (error) {
     console.error("Sheet load failed:", error);
@@ -247,9 +167,7 @@ async function fetchSheet() {
 function weightedShuffle() {
   let weighted = [];
   content.forEach(item => {
-    for (let i = 0; i < item.weight; i++) {
-      weighted.push(item);
-    }
+    for (let i = 0; i < item.weight; i++) weighted.push(item);
   });
   content = weighted.sort(() => 0.5 - Math.random());
 }
@@ -257,84 +175,69 @@ function weightedShuffle() {
 function setTheme() {
   const hour = new Date().getHours();
   const isDay = hour >= 7 && hour <= 18;
-
-  if (isDay) {
-    document.body.style.background = "var(--lightbg)";
-    document.body.style.color = "#1A1F24";
-  } else {
-    document.body.style.background = "var(--charcoal)";
-    document.body.style.color = "#FFFFFF";
-  }
-
-  // Update the logo immediately when theme changes
+  document.body.style.background = isDay ? "var(--lightbg)" : "var(--charcoal)";
+  document.body.style.color = isDay ? "#1A1F24" : "#FFFFFF";
   updateLogoAppearance();
 }
 
-
 function rotate() {
   if(content.length === 0) return;
-
   setTheme();
+
   const item = content[index];
-  updateArrowByWeight(item.weight);
   const header = document.getElementById("header");
   const quote = document.getElementById("quote");
   const accent = document.getElementById("accent");
-const arrowStop1 = document.getElementById("arrowStop1");
-const arrowStop2 = document.getElementById("arrowStop2");
-const arrow = document.querySelector(".background-arrow");
+  const arrow = document.querySelector(".background-arrow");
+  const arrowStop1 = document.getElementById("arrowStop1");
+  const arrowStop2 = document.getElementById("arrowStop2");
 
+  // Reset
   header.textContent = "";
   header.style.color = "var(--purple)";
   accent.style.background = "var(--purple)";
-if (item.weight >= 4) {
-  arrow.style.transform = "scale(1.2)";
-} 
-else if (item.weight >= 2) {
-  arrow.style.transform = "scale(1)";
-} 
-else {
-  arrow.style.transform = "scale(0.85)";
-}
 
+  // Scale & opacity
+  if(item.weight >= 4) { arrow.style.transform = "translate(-50%, -50%) scale(1.2)"; arrow.style.opacity="0.22"; }
+  else if(item.weight >= 2) { arrow.style.transform = "translate(-50%, -50%) scale(1)"; arrow.style.opacity="0.18"; }
+  else { arrow.style.transform = "translate(-50%, -50%) scale(0.85)"; arrow.style.opacity="0.15"; }
 
-if(item.type === "tax"){
-  header.textContent = "TAX REMINDER";
-  arrowStop1.setAttribute("stop-color", "#6A3DF0");
-  arrowStop2.setAttribute("stop-color", "#8C52FF");
-  arrow.className = "background-arrow arrow-top-right";
-}
-
-// Ensure arrow is visible and colored for appreciation type
-if(item.type === "appreciation"){
-  accent.style.background = "var(--blue)";
-  arrowStop1.setAttribute("stop-color", "#1E73D8");
-  arrowStop2.setAttribute("stop-color", "#4AA3FF");
-
-  const arrow = document.querySelector(".background-arrow");
-  arrow.className = "background-arrow arrow-bottom-left";
-  arrow.style.opacity = "0.18"; // make sure arrow is visible
-}
-
-
-if(item.type === "strategy"){
-  header.textContent = "STRATEGIC NOTE";
-  header.style.color = "var(--blue)";
-  arrowStop1.setAttribute("stop-color", "#1E73D8");
-  arrowStop2.setAttribute("stop-color", "#4AA3FF");
-  arrow.className = "background-arrow arrow-center";
-}
-
-  if(item.type === "brand"){
-    header.textContent = "";
-    quote.textContent = "Salterra CFO";
-    accent.style.background = "var(--purple)";
-    index = (index + 1) % content.length;
-    return;
+  // Slide type logic
+  switch(item.type) {
+    case "tax":
+      header.textContent="TAX REMINDER";
+      arrowStop1.setAttribute("stop-color","#6A3DF0");
+      arrowStop2.setAttribute("stop-color","#8C52FF");
+      arrow.className="background-arrow arrow-top-right";
+      break;
+    case "appreciation":
+      accent.style.background="var(--blue)";
+      arrowStop1.setAttribute("stop-color","#1E73D8");
+      arrowStop2.setAttribute("stop-color","#4AA3FF");
+      arrow.className="background-arrow arrow-bottom-left";
+      break;
+    case "strategy":
+      header.textContent="STRATEGIC NOTE";
+      header.style.color="var(--blue)";
+      arrowStop1.setAttribute("stop-color","#1E73D8");
+      arrowStop2.setAttribute("stop-color","#4AA3FF");
+      arrow.className="background-arrow arrow-center";
+      break;
+    case "brand":
+      header.textContent="";
+      quote.textContent="Salterra CFO";
+      accent.style.background="var(--purple)";
+      arrowStop1.setAttribute("stop-color","#6A3DF0");
+      arrowStop2.setAttribute("stop-color","#8C52FF");
+      arrow.className="background-arrow arrow-center";
+      break;
+    default:
+      arrowStop1.setAttribute("stop-color","#6A3DF0");
+      arrowStop2.setAttribute("stop-color","#8C52FF");
   }
 
-  quote.textContent = item.text;
-  index = (index + 1) % content.length;
+  if(item.type !== "brand") quote.textContent = item.text;
+  index = (index+1) % content.length;
 }
 
 async function init() {
@@ -344,116 +247,62 @@ async function init() {
 }
 
 init();
-// ===== Logo Rotation =====
 
+// ===== Logo Rotation =====
 const logos = [
-  "logo-primary-horizontal",      // base name without extension
+  "logo-primary-horizontal",
   "logo-primary",
   "logo-secondary-horizontal",
   "logo-secondary"
 ];
 
-const positions = [
-  "logo-top-left",
-  "logo-top-right",
-  "logo-bottom-right",
-  "logo-bottom-left"
-];
+const positions = ["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
 
-let currentLogoIndex = 0;
-let currentPositionIndex = 0;
-
-// Set initial logo
-const logoContainer = document.getElementById("lobby-logo");
-const logoImg = document.getElementById("rotating-logo");
+let currentLogoIndex=0, currentPositionIndex=0;
+const logoContainer=document.getElementById("lobby-logo");
+const logoImg=document.getElementById("rotating-logo");
 
 logoContainer.classList.add("logo-top-right");
-updateLogoAppearance(); // initial setup
+updateLogoAppearance();
 
-function updateLogoAppearance() {
-  let baseName = logos[currentLogoIndex];
-  
-  // Determine theme suffix
-  const hour = new Date().getHours();
-  const isDay = hour >= 7 && hour <= 18;
-  const themeSuffix = isDay ? "-dark.png" : "-light.png";  // light logo for dark bg, dark logo for light bg
+function updateLogoAppearance(){
+  let baseName=logos[currentLogoIndex];
+  const hour=new Date().getHours();
+  const isDay=hour>=7 && hour<=18;
+  const themeSuffix=isDay ? "-dark.png":"-light.png";
+  logoImg.src=baseName + themeSuffix;
 
-  // Update logo source
-  logoImg.src = baseName + themeSuffix;
-
-  // Remove previous sizing classes
-  logoContainer.classList.remove("logo-horizontal", "logo-vertical");
-  
-  // Apply size class based on logo type
-  if (baseName.includes("horizontal")) {
-    logoContainer.classList.add("logo-horizontal");
-  } else {
-    logoContainer.classList.add("logo-vertical");
-  }
-
-  // Apply dark mode class if using filter approach
-  if (!isDay) {
-    logoContainer.classList.add("dark");
-  } else {
-    logoContainer.classList.remove("dark");
-  }
+  logoContainer.classList.remove("logo-horizontal","logo-vertical");
+  if(baseName.includes("horizontal")) logoContainer.classList.add("logo-horizontal");
+  else logoContainer.classList.add("logo-vertical");
+  if(!isDay) logoContainer.classList.add("dark");
+  else logoContainer.classList.remove("dark");
 }
 
-function rotateLogo() {
+function rotateLogo(){
   logoImg.classList.add("logo-hidden");
-
-  setTimeout(() => {
-    // Move to next logo
-    currentLogoIndex = (currentLogoIndex + 1) % logos.length;
-    // Move to next position
+  setTimeout(()=>{
+    currentLogoIndex=(currentLogoIndex+1)%logos.length;
     logoContainer.classList.remove(positions[currentPositionIndex]);
-    currentPositionIndex = (currentPositionIndex + 1) % positions.length;
+    currentPositionIndex=(currentPositionIndex+1)%positions.length;
     logoContainer.classList.add(positions[currentPositionIndex]);
-
-    updateLogoAppearance(); // update logo for current theme
-
+    updateLogoAppearance();
     logoImg.classList.remove("logo-hidden");
-  }, 1500);
+  },1500);
 }
 
-// Rotate every 25s
-setInterval(rotateLogo, 25000);
+setInterval(rotateLogo,25000);
 
+// ===== Background Arrow Rotation =====
+let arrowRotation=0;
+setInterval(()=>{
+  arrowRotation+=10;
+  const arrow=document.querySelector(".background-arrow");
+  const transformMatch=arrow.style.transform.match(/scale\([0-9.]+\)/);
+  const scale=transformMatch ? transformMatch[0]:"scale(1)";
+  arrow.style.transform=`translate(-50%,-50%) rotate(${arrowRotation}deg) ${scale}`;
+},20000);
 
-// Set initial position
-document.getElementById("lobby-logo").classList.add("logo-top-right");
-
-setInterval(rotateLogo, 25000);
-// ===== Background Arrow Animation =====
-
-let arrowRotation = 0;
-
-setInterval(() => {
-  arrowRotation += 10;
-  const arrow = document.querySelector(".background-arrow");
-  arrow.style.transform =
-    `translate(-50%, -50%) rotate(${arrowRotation}deg) scale(${1 + Math.random() * 0.08})`;
-}, 20000);
-function updateArrowByWeight(weight) {
-  const arrow = document.querySelector(".background-arrow");
-
-  if (weight >= 4) {
-    arrow.style.opacity = "0.22";
-  } 
-  else if (weight >= 2) {
-    arrow.style.opacity = "0.18";
-  } 
-  else {
-    arrow.style.opacity = "0.12";
-  }
-}
-
-  
 </script>
-
-
 </body>
-
-
-
 </html>
