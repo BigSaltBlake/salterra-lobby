@@ -126,12 +126,12 @@ body {
   <div class="accent" id="accent"></div>
 </div>
 
-<!-- Logos -->
+<!-- Logos (local SVG files in same folder) -->
 <div id="lobby-logo" class="logo-top-right logo-horizontal">
-  <img id="logo-primary-horizontal" src="https://raw.githubusercontent.com/BigSaltBlake/salterra-lobby/refs/heads/main/logo-primary-horizontal.svg" />
-  <img id="logo-primary" src="https://raw.githubusercontent.com/BigSaltBlake/salterra-lobby/refs/heads/main/logo-primary.svg" />
-  <img id="logo-secondary-horizontal" src="https://raw.githubusercontent.com/BigSaltBlake/salterra-lobby/refs/heads/main/logo-secondary-horizontal.svg" />
-  <img id="logo-secondary" src="https://raw.githubusercontent.com/BigSaltBlake/salterra-lobby/refs/heads/main/logo-secondary.svg" />
+  <img id="logo-primary-horizontal" src="logo-primary-horizontal.svg" />
+  <img id="logo-primary" src="logo-primary.svg" />
+  <img id="logo-secondary-horizontal" src="logo-secondary-horizontal.svg" />
+  <img id="logo-secondary" src="logo-secondary.svg" />
 </div>
 
 <script>
@@ -207,7 +207,7 @@ const positions=["logo-top-left","logo-top-right","logo-bottom-right","logo-bott
 
 function updateLogoForTheme(isDay){
   currentLogoType=isDay?"primary":"secondary";
-  currentLogoOrientation="horizontal"; // you can adjust if needed
+  currentLogoOrientation="horizontal"; 
   Object.values(logos).forEach(obj=>Object.values(obj).forEach(img=>img.style.opacity=0));
   logos[currentLogoType][currentLogoOrientation].style.opacity=1;
   logoContainer.classList.remove("logo-horizontal","logo-vertical");
@@ -235,7 +235,7 @@ async function init(){
   rotateQuote();
   setTheme();
   setInterval(rotateQuote,32000);
-  setInterval(()=>setTheme(),60000); // refresh theme every minute
+  setInterval(()=>setTheme(),60000); 
   setInterval(rotateLogo,25000);
 }
 init();
