@@ -117,6 +117,27 @@ body {
 .brand-arrow:hover {
   opacity: 0.15;
 }
+.background-arrow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 900px;
+  transform: translate(-50%, -50%) rotate(0deg);
+  opacity: 0.06;
+  z-index: 0;
+  pointer-events: none;
+  transition: transform 20s linear;
+}
+
+.background-arrow svg {
+  width: 100%;
+  height: auto;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+}
   
 </style>
 </head>
@@ -132,26 +153,6 @@ body {
 <div id="lobby-logo">
   <img id="rotating-logo" src="logo-primary-horizontal.png" />
 </div>
-
-<div class="brand-arrow">
-<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6A3DF0"/>
-      <stop offset="100%" stop-color="#8C52FF"/>
-    </linearGradient>
-  </defs>
-  <path d="M20 20 
-           Q10 30 20 40 
-           L110 80 
-           Q130 90 150 75 
-           Q170 60 150 45 
-           L60 5 
-           Q40 -5 20 20 Z"
-        fill="url(#arrowGradient)" />
-</svg>
-</div>
-
 
 <script>
 const SHEET_ID = "1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk";
@@ -284,9 +285,41 @@ function rotateLogo() {
 document.getElementById("lobby-logo").classList.add("logo-top-right");
 
 setInterval(rotateLogo, 25000);
+// ===== Background Arrow Animation =====
+
+let arrowRotation = 0;
+
+setInterval(() => {
+  arrowRotation += 15;
+  const arrow = document.querySelector(".background-arrow");
+  arrow.style.transform =
+    `translate(-50%, -50%) rotate(${arrowRotation}deg) scale(${1 + Math.random() * 0.1})`;
+}, 20000);
   
 </script>
 
 
 </body>
+  <div class="background-arrow">
+<svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6A3DF0"/>
+      <stop offset="100%" stop-color="#8C52FF"/>
+    </linearGradient>
+  </defs>
+  <path d="
+    M 60 180
+    Q 40 160 60 140
+    L 300 60
+    Q 350 40 400 90
+    Q 450 140 400 190
+    L 160 270
+    Q 110 290 60 240
+    Z"
+    fill="url(#arrowGradient)"
+  />
+</svg>
+</div>
+
 </html>
