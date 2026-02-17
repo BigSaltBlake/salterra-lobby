@@ -45,6 +45,8 @@ body {
 .quote {
   font-size: 60px;
   line-height: 1.25;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .accent {
@@ -66,41 +68,27 @@ body {
 }
 
 /* Horizontal logos */
-.logo-horizontal {
-  max-width: 180px;
-  width: auto;
-}
-
+.logo-horizontal { max-width: 180px; width: auto; }
 /* Vertical logos */
-.logo-vertical {
-  max-width: 140px;
-  width: auto;
-}
+.logo-vertical { max-width: 140px; width: auto; }
 
 .logo-top-left { top: 40px; left: 60px; }
 .logo-top-right { top: 40px; right: 60px; }
 .logo-bottom-left { bottom: 60px; left: 60px; }
 .logo-bottom-right { bottom: 60px; right: 60px; }
 
-#lobby-logo img {
-  width: 100%;
-  transition: opacity 1.5s ease-in-out;
-}
-
+#lobby-logo img { width: 100%; transition: opacity 1.5s ease-in-out; }
 .logo-hidden { opacity: 0; }
 
 .background-arrow {
   position: absolute;
   width: 1000px;
-  opacity: 0.08; 
+  opacity: 0.08;
   z-index: 0;
   pointer-events: none;
   transition: opacity 2s ease, transform 8s ease-in-out, stop-color 1s ease;
 }
-
-.background-arrow stop {
-  transition: stop-color 1s ease;
-}
+.background-arrow stop { transition: stop-color 1s ease; }
 
 .arrow-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
 .arrow-top-right { top: 30%; left: 70%; transform: translate(-50%, -50%); }
@@ -136,7 +124,7 @@ body {
 </div>
   
 <div id="lobby-logo">
-  <img id="rotating-logo" src="logo-primary-horizontal.png" />
+  <img id="rotating-logo" src="logo-primary-horizontal.svg" />
 </div>
 
 <script>
@@ -177,7 +165,17 @@ function setTheme() {
   const isDay = hour >= 7 && hour <= 18;
   document.body.style.background = isDay ? "var(--lightbg)" : "var(--charcoal)";
   document.body.style.color = isDay ? "#1A1F24" : "#FFFFFF";
-  updateLogoAppearance();
+}
+
+function setQuoteText(text){
+  const quote = document.getElementById("quote");
+  quote.textContent = text;
+  let fontSize = 60;
+  quote.style.fontSize = fontSize + "px";
+  while(quote.scrollWidth > quote.parentElement.offsetWidth && fontSize > 24){
+    fontSize -= 2;
+    quote.style.fontSize = fontSize + "px";
+  }
 }
 
 function rotate() {
@@ -186,7 +184,6 @@ function rotate() {
 
   const item = content[index];
   const header = document.getElementById("header");
-  const quote = document.getElementById("quote");
   const accent = document.getElementById("accent");
   const arrow = document.querySelector(".background-arrow");
   const arrowStop1 = document.getElementById("arrowStop1");
@@ -202,7 +199,7 @@ function rotate() {
   else if(item.weight >= 2) { arrow.style.transform = "translate(-50%, -50%) scale(1)"; arrow.style.opacity="0.18"; }
   else { arrow.style.transform = "translate(-50%, -50%) scale(0.85)"; arrow.style.opacity="0.15"; }
 
-  // Slide type logic
+  // Slide type
   switch(item.type) {
     case "tax":
       header.textContent="TAX REMINDER";
@@ -225,7 +222,7 @@ function rotate() {
       break;
     case "brand":
       header.textContent="";
-      quote.textContent="Salterra CFO";
+      setQuoteText("Salterra CFO");
       accent.style.background="var(--purple)";
       arrowStop1.setAttribute("stop-color","#6A3DF0");
       arrowStop2.setAttribute("stop-color","#8C52FF");
@@ -236,7 +233,8 @@ function rotate() {
       arrowStop2.setAttribute("stop-color","#8C52FF");
   }
 
-  if(item.type !== "brand") quote.textContent = item.text;
+  if(item.type !== "brand") setQuoteText(item.text);
+
   index = (index+1) % content.length;
 }
 
@@ -250,10 +248,10 @@ init();
 
 // ===== Logo Rotation =====
 const logos = [
-  "logo-primary-horizontal",
-  "logo-primary",
-  "logo-secondary-horizontal",
-  "logo-secondary"
+  "logo-primary-horizontal.svg",
+  "logo-primary.svg",
+  "logo-secondary-horizontal.svg",
+  "logo-secondary.svg"
 ];
 
 const positions = ["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
@@ -263,20 +261,13 @@ const logoContainer=document.getElementById("lobby-logo");
 const logoImg=document.getElementById("rotating-logo");
 
 logoContainer.classList.add("logo-top-right");
-updateLogoAppearance();
 
 function updateLogoAppearance(){
   let baseName=logos[currentLogoIndex];
-  const hour=new Date().getHours();
-  const isDay=hour>=7 && hour<=18;
-  const themeSuffix=isDay ? "-dark.png":"-light.png";
-  logoImg.src=baseName + themeSuffix;
-
+  logoImg.src=baseName;
   logoContainer.classList.remove("logo-horizontal","logo-vertical");
   if(baseName.includes("horizontal")) logoContainer.classList.add("logo-horizontal");
   else logoContainer.classList.add("logo-vertical");
-  if(!isDay) logoContainer.classList.add("dark");
-  else logoContainer.classList.remove("dark");
 }
 
 function rotateLogo(){
@@ -306,3 +297,4 @@ setInterval(()=>{
 </script>
 </body>
 </html>
+
