@@ -11,8 +11,8 @@
 :root{
   --purple:#6A3DF0;
   --blue:#1E73D8;
-  --dark:#111417;
   --light:#F4F4F2;
+  --dark:#111417;
 }
 
 body{
@@ -22,9 +22,8 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-family:'Cormorant Garamond',serif;
   background:var(--light);
-  transition:background 1s ease;
+  font-family:'Cormorant Garamond',serif;
 }
 
 /* ===== CONTENT SAFE AREA ===== */
@@ -34,33 +33,37 @@ body{
   text-align:center;
   z-index:5;
   position:relative;
-  padding:40px 20px;
+  padding:60px 20px;
 }
 
 .header{
   font-family:'Inter',sans-serif;
   font-size:18px;
   letter-spacing:3px;
-  margin-bottom:30px;
+  margin-bottom:35px;
 }
 
 .quote{
   font-size:64px;
   line-height:1.25;
-  word-wrap:break-word;
-  overflow-wrap:break-word;
   max-height:55vh;
   overflow:hidden;
+  transition:opacity .6s ease, transform .6s ease;
+}
+
+.quote.fade-out{
+  opacity:0;
+  transform:translateY(10px);
 }
 
 .accent{
   height:4px;
   width:140px;
-  margin:40px auto 0;
+  margin:45px auto 0;
   transition:background 1s ease;
 }
 
-/* ===== LOGO SAFE ZONE ===== */
+/* ===== LOGO ===== */
 #logo-container{
   position:absolute;
   z-index:4;
@@ -72,10 +75,9 @@ body{
   max-height:110px;
   width:auto;
   height:auto;
-  display:block;
+  transition:opacity .5s ease;
 }
 
-/* LOGO POSITIONS (kept OUTSIDE text zone) */
 .logo-top-left{ top:40px; left:60px; }
 .logo-top-right{ top:40px; right:60px; }
 .logo-bottom-left{ bottom:40px; left:60px; }
@@ -91,22 +93,39 @@ body{
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  transition:transform 2s ease;
+  animation: spinClockwise 120s linear infinite;
 }
 
-.background-arrow svg{
-  width:100%;
+.background-arrow.zoom{
+  animation: spinClockwise 120s linear infinite,
+             zoomPulse 18s ease-in-out infinite;
 }
 
-.background-arrow stop{
-  transition:stop-color 1s ease;
+@keyframes spinClockwise{
+  from{ transform:translate(-50%,-50%) rotate(0deg); }
+  to{ transform:translate(-50%,-50%) rotate(360deg); }
 }
+
+@keyframes spinCounter{
+  from{ transform:translate(-50%,-50%) rotate(0deg); }
+  to{ transform:translate(-50%,-50%) rotate(-360deg); }
+}
+
+@keyframes zoomPulse{
+  0%{ transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+  50%{ transform:translate(-50%,-50%) scale(1.05) rotate(180deg); }
+  100%{ transform:translate(-50%,-50%) scale(1) rotate(360deg); }
+}
+
+.background-arrow svg{ width:100%; }
+.background-arrow stop{ transition:stop-color 1s ease; }
+
 </style>
 </head>
 <body>
 
 <!-- BACKGROUND ARROW -->
-<div class="background-arrow" id="arrow">
+<div class="background-arrow zoom" id="arrow">
   <svg viewBox="0 0 600 400">
     <defs>
       <linearGradient id="arrowGradient">
@@ -139,6 +158,8 @@ body{
 
 /* ===== CONFIG ===== */
 
+const SLIDE_DURATION = 30000;
+
 const logos = {
   purple: "logo-primary-horizontal.png",
   blue: "logo-secondary-horizontal.png"
@@ -151,17 +172,17 @@ const positions = [
   "logo-bottom-left"
 ];
 
-let slideIndex = 0;
-let theme = "purple";
-
-/* ===== QUOTES ===== */
-
 const quotes = [
   "Welcome to Salterra.",
   "Design with intention.",
   "Strategy creates clarity.",
   "Build with purpose."
 ];
+
+let slideIndex = 0;
+let theme = "purple";
+
+/* ===== TEXT FIT ===== */
 
 function fitText(){
   const q = document.getElementById("quote");
@@ -174,49 +195,64 @@ function fitText(){
   }
 }
 
+/* ===== MASTER SLIDE UPDATE ===== */
+
 function updateSlide(){
 
-  /* ===== TEXT ===== */
-  document.getElementById("quote").textContent = quotes[slideIndex];
-  fitText();
-
-  /* ===== THEME SWITCH ===== */
-  theme = theme === "purple" ? "blue" : "purple";
-
+  const quoteEl = document.getElementById("quote");
   const accent = document.getElementById("accent");
   const stop1 = document.getElementById("stop1");
   const stop2 = document.getElementById("stop2");
   const logoImg = document.getElementById("logo-img");
-
-  if(theme === "blue"){
-    accent.style.background = "var(--blue)";
-    stop1.setAttribute("stop-color","#1E73D8");
-    stop2.setAttribute("stop-color","#4AA3FF");
-    logoImg.src = logos.blue;
-  } else {
-    accent.style.background = "var(--purple)";
-    stop1.setAttribute("stop-color","#6A3DF0");
-    stop2.setAttribute("stop-color","#8C52FF");
-    logoImg.src = logos.purple;
-  }
-
-  /* ===== LOGO POSITION ROTATION ===== */
   const logoContainer = document.getElementById("logo-container");
-  logoContainer.classList.remove(...positions);
-  logoContainer.classList.add(positions[slideIndex % positions.length]);
-
-  /* ===== ARROW ROTATION ===== */
   const arrow = document.getElementById("arrow");
-  arrow.style.transform =
-    `translate(-50%,-50%) rotate(${slideIndex * 90}deg)`;
 
-  slideIndex++;
+  /* Fade out text */
+  quoteEl.classList.add("fade-out");
+
+  setTimeout(()=>{
+
+    /* Update text */
+    quoteEl.textContent = quotes[slideIndex];
+    fitText();
+    quoteEl.classList.remove("fade-out");
+
+    /* Toggle theme */
+    theme = theme === "purple" ? "blue" : "purple";
+
+    /* COLOR SYSTEM */
+    if(theme === "blue"){
+      accent.style.background = "var(--blue)";
+      stop1.setAttribute("stop-color","#1E73D8");
+      stop2.setAttribute("stop-color","#4AA3FF");
+      arrow.style.animation = "spinCounter 120s linear infinite, zoomPulse 18s ease-in-out infinite";
+    } else {
+      accent.style.background = "var(--purple)";
+      stop1.setAttribute("stop-color","#6A3DF0");
+      stop2.setAttribute("stop-color","#8C52FF");
+      arrow.style.animation = "spinClockwise 120s linear infinite, zoomPulse 18s ease-in-out infinite";
+    }
+
+    /* LOGO FADE + SWAP */
+    logoImg.style.opacity = 0;
+    setTimeout(()=>{
+      logoImg.src = logos[theme];
+      logoImg.style.opacity = 1;
+    }, 400);
+
+    /* LOGO POSITION ROTATION */
+    logoContainer.classList.remove(...positions);
+    logoContainer.classList.add(positions[slideIndex % positions.length]);
+
+    slideIndex++;
+
+  }, 600);
 }
 
-/* ===== INITIALIZE ===== */
+/* ===== INIT ===== */
 
 updateSlide();
-setInterval(updateSlide, 30000); // ALL elements sync every 30 seconds
+setInterval(updateSlide, SLIDE_DURATION);
 
 </script>
 
