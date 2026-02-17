@@ -256,6 +256,7 @@ function rotate() {
 
   setTheme();
   const item = content[index];
+  updateArrowByWeight(item.weight);
   const header = document.getElementById("header");
   const quote = document.getElementById("quote");
   const accent = document.getElementById("accent");
@@ -266,6 +267,15 @@ const arrow = document.querySelector(".background-arrow");
   header.textContent = "";
   header.style.color = "var(--purple)";
   accent.style.background = "var(--purple)";
+if (weight >= 4) {
+  arrow.style.transform = "scale(1.2)";
+} 
+else if (weight >= 2) {
+  arrow.style.transform = "scale(1)";
+} 
+else {
+  arrow.style.transform = "scale(0.85)";
+}
 
 if(item.type === "tax"){
   header.textContent = "TAX REMINDER";
@@ -304,7 +314,7 @@ if(item.type === "strategy"){
 async function init() {
   await fetchSheet();
   rotate();
-  setInterval(rotate, 75000);
+  setInterval(rotate, 32000);
 }
 
 init();
@@ -359,6 +369,20 @@ setInterval(() => {
   arrow.style.transform =
     `translate(-50%, -50%) rotate(${arrowRotation}deg) scale(${1 + Math.random() * 0.08})`;
 }, 20000);
+function updateArrowByWeight(weight) {
+  if (weight >= 4) {
+    // High priority – Blue
+    arrow.style.fill = "rgba(30, 115, 216, 0.22)";
+  } 
+  else if (weight >= 2) {
+    // Medium – Purple
+    arrow.style.fill = "rgba(106, 61, 240, 0.18)";
+  } 
+  else {
+    // Low – Soft neutral
+    arrow.style.fill = "rgba(120, 120, 150, 0.12)";
+  }
+}
   
 </script>
 
