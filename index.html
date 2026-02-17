@@ -57,15 +57,20 @@ body {
   transition: background 1.5s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* Logo container */
 #lobby-logo {
   position: absolute;
-  transition: all 1.5s ease-in-out;
+  transition: all 1s ease-in-out;
+}
+
+#lobby-logo img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
 }
 
 .logo-horizontal { max-width: 180px; width: auto; }
@@ -76,9 +81,7 @@ body {
 .logo-bottom-left { bottom: 60px; left: 60px; }
 .logo-bottom-right { bottom: 60px; right: 60px; }
 
-#lobby-logo svg { width: 100%; height: auto; transition: opacity 1s ease-in-out; position: absolute; top:0; left:0; }
-.logo-hidden { opacity: 0; }
-
+/* Background arrow */
 .background-arrow {
   position: absolute;
   width: 1000px;
@@ -96,16 +99,9 @@ body {
 
 .background-arrow svg { width: 100%; height: auto; }
 
-@keyframes rotateArrow {
-  from { transform: translate(-50%,-50%) rotate(0deg); }
-  to { transform: translate(-50%,-50%) rotate(360deg); }
-}
-
-.background-arrow { animation: rotateArrow 60s linear infinite; }
-
+@keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to {opacity:1; transform:translateY(0);} }
 </style>
 </head>
-
 <body>
 
 <!-- Background arrow -->
@@ -132,60 +128,50 @@ body {
   <div class="accent" id="accent"></div>
 </div>
 
-<!-- Inline SVG logos -->
+<!-- Logos as <img> -->
 <div id="lobby-logo" class="logo-top-right logo-horizontal">
-  <!-- Replace these with your actual SVG logos -->
-  <svg id="logo-1" viewBox="0 0 200 60"> ... </svg>
-  <svg id="logo-2" viewBox="0 0 100 200"> ... </svg>
-  <svg id="logo-3" viewBox="0 0 200 60"> ... </svg>
-  <svg id="logo-4" viewBox="0 0 100 200"> ... </svg>
+  <img id="logo-1" src="logos/logo-primary-horizontal.svg" />
+  <img id="logo-2" src="logos/logo-primary.svg" />
+  <img id="logo-3" src="logos/logo-secondary-horizontal.svg" />
+  <img id="logo-4" src="logos/logo-secondary.svg" />
 </div>
 
 <script>
-// ===== Sheet + Quotes =====
-const SHEET_ID="1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk";
-const SHEET_NAME="Content";
-const SHEET_URL=`https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
-
+// ===== Quotes from Sheet =====
+const SHEET_URL = "https://opensheet.elk.sh/1vtJmF8v7SnHgM4a-YMVmrozN5aSXeSXCvqA30YepvHk/Content";
 let content=[], index=0;
 
 async function fetchSheet(){
-  try{
-    const res=await fetch(SHEET_URL);
-    const data=await res.json();
-    content=data.filter(r=>r.Active && r.Active.toLowerCase()==="true")
-      .map(r=>({ type:r.Type?.toLowerCase()||"quote", text:r.Text, weight:parseInt(r.Weight)||1 }));
+  try {
+    const res = await fetch(SHEET_URL);
+    const data = await res.json();
+    content = data.filter(r=>r.Active && r.Active.toLowerCase()==="true").map(r=>({
+      type: r.Type?.toLowerCase() || "quote",
+      text: r.Text,
+      weight: parseInt(r.Weight)||1
+    }));
     weightedShuffle();
-  }catch(e){console.error(e);}
+  } catch(e){console.error(e);}
 }
 
 function weightedShuffle(){
   let weighted=[];
   content.forEach(item=>{ for(let i=0;i<item.weight;i++) weighted.push(item); });
-  content=weighted.sort(()=>0.5-Math.random());
+  content = weighted.sort(()=>0.5-Math.random());
 }
 
-function setTheme(){
-  const h=new Date().getHours();
-  const isDay=h>=7&&h<=18;
-  document.body.style.background=isDay?"var(--lightbg)":"var(--charcoal)";
-  document.body.style.color=isDay?"#1A1F24":"#FFFFFF";
-}
-
-// Auto scale quotes
 function setQuoteText(text){
-  const quote=document.getElementById("quote");
-  quote.textContent=text;
+  const quote = document.getElementById("quote");
+  quote.textContent = text;
   let fs=60; quote.style.fontSize=fs+"px";
   while(quote.scrollWidth>quote.parentElement.offsetWidth && fs>24){ fs-=2; quote.style.fontSize=fs+"px"; }
 }
 
-// Smooth gradient + accent swap
 function rotateColors(){
   const accent=document.getElementById("accent");
   const stop1=document.getElementById("arrowStop1");
   const stop2=document.getElementById("arrowStop2");
-  const isPurple=accent.style.background==="var(--purple)";
+  const isPurple = accent.style.background==="var(--purple)";
   if(isPurple){
     accent.style.background="var(--blue)";
     stop1.setAttribute("stop-color","#1E73D8");
@@ -199,61 +185,61 @@ function rotateColors(){
 
 function rotate(){
   if(!content.length) return;
-  setTheme();
-  const item=content[index];
+  const item = content[index];
+  setQuoteText(item.text);
   const header=document.getElementById("header");
   header.textContent="";
   header.style.color="var(--purple)";
-  setQuoteText(item.text);
 
-  const arrow=document.querySelector(".background-arrow");
-  if(item.weight>=4){ arrow.style.opacity="0.22"; }
-  else if(item.weight>=2){ arrow.style.opacity="0.18"; }
-  else{ arrow.style.opacity="0.15"; }
+  const arrow = document.querySelector(".background-arrow");
+  if(item.weight>=4) arrow.style.opacity="0.22";
+  else if(item.weight>=2) arrow.style.opacity="0.18";
+  else arrow.style.opacity="0.15";
 
   rotateColors();
   index=(index+1)%content.length;
 }
 
-// Init
 async function init(){ await fetchSheet(); rotate(); setInterval(rotate,32000); }
 init();
 
 // ===== Logo rotation =====
-const logoSVGs=[
+const logoImgs = [
   document.getElementById("logo-1"),
   document.getElementById("logo-2"),
   document.getElementById("logo-3"),
   document.getElementById("logo-4")
 ];
-const positions=["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
-let currentLogoIndex=0, currentPositionIndex=0;
+
+const positions = ["logo-top-left","logo-top-right","logo-bottom-right","logo-bottom-left"];
+let currentLogoIndex = 0, currentPositionIndex = 0;
 const logoContainer=document.getElementById("lobby-logo");
 
 function updateLogo(){
-  logoSVGs.forEach((svg,i)=>svg.style.opacity=(i===currentLogoIndex)?1:0);
+  logoImgs.forEach((img,i)=>img.style.opacity=(i===currentLogoIndex)?1:0);
   logoContainer.classList.remove("logo-horizontal","logo-vertical");
-  const viewBox = logoSVGs[currentLogoIndex].getAttribute("viewBox").split(" ");
-  const width=parseFloat(viewBox[2]);
-  const height=parseFloat(viewBox[3]);
-  if(width>=height){ logoContainer.classList.add("logo-horizontal"); }
-  else{ logoContainer.classList.add("logo-vertical"); }
+  const img = logoImgs[currentLogoIndex];
+  const aspect = img.naturalWidth/img.naturalHeight;
+  if(aspect>=1) logoContainer.classList.add("logo-horizontal");
+  else logoContainer.classList.add("logo-vertical");
 }
 
 function rotateLogo(){
-  currentLogoIndex=(currentLogoIndex+1)%logoSVGs.length;
+  currentLogoIndex=(currentLogoIndex+1)%logoImgs.length;
   logoContainer.classList.remove(positions[currentPositionIndex]);
   currentPositionIndex=(currentPositionIndex+1)%positions.length;
   logoContainer.classList.add(positions[currentPositionIndex]);
   updateLogo();
 }
 
+// Initial display
 updateLogo();
 setInterval(rotateLogo,25000);
 
-// Optional: continuous gradient swap independently
+// Optional: rotate accent + arrow colors every 16s
 setInterval(rotateColors,16000);
 
 </script>
+
 </body>
 </html>
