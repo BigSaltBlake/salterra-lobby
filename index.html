@@ -87,7 +87,7 @@ body {
   opacity: 0.08;
   z-index: 0;
   pointer-events: none;
-  transition: opacity 1.5s ease, transform 1s ease;
+  transition: opacity 1.5s ease, transform 2s ease;
 }
 .background-arrow stop { transition: stop-color 1.5s ease; }
 
@@ -211,7 +211,9 @@ let arrowRotation = 0;
 setInterval(()=>{
   arrowRotation += 10;
   const arrow = document.querySelector(".background-arrow");
-  arrow.style.transform = `translate(-50%,-50%) rotate(${arrowRotation}deg)`;
+  const transformScale = arrow.style.transform.match(/scale\([0-9.]+\)/);
+  const scale = transformScale ? transformScale[0] : "scale(1)";
+  arrow.style.transform = `translate(-50%,-50%) rotate(${arrowRotation}deg) ${scale}`;
 }, 20000);
 
 // ===== Initialize =====
